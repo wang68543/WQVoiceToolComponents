@@ -1,0 +1,13 @@
+//
+//  PrefixHeader.pch
+//  WQVoiceToolDemo
+//
+//  Created by WangQiang on 2017/5/25.
+//  Copyright © 2017年 WQMapKit. All rights reserved.
+//
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+//#import <Foundation/Foundation.h>
+//#import <UIKit/UIKit.h>
+#endif /* PrefixHeader_pch */

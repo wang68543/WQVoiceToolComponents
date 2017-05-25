@@ -1,0 +1,422 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		DE657C8A1ED67C0C000B7433 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C891ED67C0C000B7433 /* main.m */; };
+		DE657C8D1ED67C0C000B7433 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8C1ED67C0C000B7433 /* AppDelegate.m */; };
+		DE657C901ED67C0C000B7433 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8F1ED67C0C000B7433 /* ViewController.m */; };
+		DE657C931ED67C0C000B7433 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE657C911ED67C0C000B7433 /* Main.storyboard */; };
+		DE657C961ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE657C941ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld */; };
+		DE657C981ED67C0C000B7433 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE657C971ED67C0C000B7433 /* Assets.xcassets */; };
+		DE657C9B1ED67C0C000B7433 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE657C991ED67C0C000B7433 /* LaunchScreen.storyboard */; };
+		DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DC51ED6873D000B7433 /* amrFileCodec.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		DE657DD71ED6873D000B7433 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */; };
+		DE657DD81ED6873D000B7433 /* libopencore-amrwb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */; };
+		DE657DEA1ED6967F000B7433 /* WQVoiceCache.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE11ED6967F000B7433 /* WQVoiceCache.m */; };
+		DE657DEB1ED6967F000B7433 /* WQVoiceDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE31ED6967F000B7433 /* WQVoiceDownloader.m */; };
+		DE657DEC1ED6967F000B7433 /* WQVoiceDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE51ED6967F000B7433 /* WQVoiceDownloadOperation.m */; };
+		DE657DED1ED6967F000B7433 /* WQVoicePlayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */; };
+		DE657DEE1ED6967F000B7433 /* WQVoiceRecordManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		DE657C851ED67C0C000B7433 /* WQVoiceToolDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WQVoiceToolDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE657C891ED67C0C000B7433 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		DE657C8B1ED67C0C000B7433 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		DE657C8C1ED67C0C000B7433 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		DE657C8E1ED67C0C000B7433 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		DE657C8F1ED67C0C000B7433 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		DE657C921ED67C0C000B7433 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		DE657C951ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WQVoiceToolDemo.xcdatamodel; sourceTree = "<group>"; };
+		DE657C971ED67C0C000B7433 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DE657C9A1ED67C0C000B7433 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DE657C9C1ED67C0C000B7433 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DE657DC41ED6873D000B7433 /* amrFileCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amrFileCodec.h; sourceTree = "<group>"; };
+		DE657DC51ED6873D000B7433 /* amrFileCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = amrFileCodec.m; sourceTree = "<group>"; };
+		DE657DC61ED6873D000B7433 /* dec_if.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dec_if.h; sourceTree = "<group>"; };
+		DE657DC71ED6873D000B7433 /* if_rom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = if_rom.h; sourceTree = "<group>"; };
+		DE657DC81ED6873D000B7433 /* interf_dec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_dec.h; sourceTree = "<group>"; };
+		DE657DC91ED6873D000B7433 /* interf_enc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_enc.h; sourceTree = "<group>"; };
+		DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
+		DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrwb.a"; sourceTree = "<group>"; };
+		DE657DDE1ED68902000B7433 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		DE657DE01ED6967F000B7433 /* WQVoiceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceCache.h; sourceTree = "<group>"; };
+		DE657DE11ED6967F000B7433 /* WQVoiceCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceCache.m; sourceTree = "<group>"; };
+		DE657DE21ED6967F000B7433 /* WQVoiceDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceDownloader.h; sourceTree = "<group>"; };
+		DE657DE31ED6967F000B7433 /* WQVoiceDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceDownloader.m; sourceTree = "<group>"; };
+		DE657DE41ED6967F000B7433 /* WQVoiceDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceDownloadOperation.h; sourceTree = "<group>"; };
+		DE657DE51ED6967F000B7433 /* WQVoiceDownloadOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceDownloadOperation.m; sourceTree = "<group>"; };
+		DE657DE61ED6967F000B7433 /* WQVoicePlayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoicePlayManager.h; sourceTree = "<group>"; };
+		DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoicePlayManager.m; sourceTree = "<group>"; };
+		DE657DE81ED6967F000B7433 /* WQVoiceRecordManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceRecordManager.h; sourceTree = "<group>"; };
+		DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceRecordManager.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DE657C821ED67C0C000B7433 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE657DD81ED6873D000B7433 /* libopencore-amrwb.a in Frameworks */,
+				DE657DD71ED6873D000B7433 /* libopencore-amrnb.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		DE657C7C1ED67C0C000B7433 = {
+			isa = PBXGroup;
+			children = (
+				DE657DC21ED6873D000B7433 /* WQVoiceToolComponents */,
+				DE657C871ED67C0C000B7433 /* WQVoiceToolDemo */,
+				DE657C861ED67C0C000B7433 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DE657C861ED67C0C000B7433 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DE657C851ED67C0C000B7433 /* WQVoiceToolDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DE657C871ED67C0C000B7433 /* WQVoiceToolDemo */ = {
+			isa = PBXGroup;
+			children = (
+				DE657C8B1ED67C0C000B7433 /* AppDelegate.h */,
+				DE657C8C1ED67C0C000B7433 /* AppDelegate.m */,
+				DE657C8E1ED67C0C000B7433 /* ViewController.h */,
+				DE657C8F1ED67C0C000B7433 /* ViewController.m */,
+				DE657C911ED67C0C000B7433 /* Main.storyboard */,
+				DE657C971ED67C0C000B7433 /* Assets.xcassets */,
+				DE657C991ED67C0C000B7433 /* LaunchScreen.storyboard */,
+				DE657C9C1ED67C0C000B7433 /* Info.plist */,
+				DE657C941ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld */,
+				DE657C881ED67C0C000B7433 /* Supporting Files */,
+			);
+			path = WQVoiceToolDemo;
+			sourceTree = "<group>";
+		};
+		DE657C881ED67C0C000B7433 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				DE657C891ED67C0C000B7433 /* main.m */,
+				DE657DDE1ED68902000B7433 /* PrefixHeader.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		DE657DC21ED6873D000B7433 /* WQVoiceToolComponents */ = {
+			isa = PBXGroup;
+			children = (
+				DE657DDF1ED6967F000B7433 /* WQVoiceManager */,
+				DE657DC31ED6873D000B7433 /* amrwapper */,
+			);
+			path = WQVoiceToolComponents;
+			sourceTree = "<group>";
+		};
+		DE657DC31ED6873D000B7433 /* amrwapper */ = {
+			isa = PBXGroup;
+			children = (
+				DE657DC41ED6873D000B7433 /* amrFileCodec.h */,
+				DE657DC51ED6873D000B7433 /* amrFileCodec.m */,
+				DE657DC61ED6873D000B7433 /* dec_if.h */,
+				DE657DC71ED6873D000B7433 /* if_rom.h */,
+				DE657DC81ED6873D000B7433 /* interf_dec.h */,
+				DE657DC91ED6873D000B7433 /* interf_enc.h */,
+				DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */,
+				DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */,
+			);
+			path = amrwapper;
+			sourceTree = "<group>";
+		};
+		DE657DDF1ED6967F000B7433 /* WQVoiceManager */ = {
+			isa = PBXGroup;
+			children = (
+				DE657DE01ED6967F000B7433 /* WQVoiceCache.h */,
+				DE657DE11ED6967F000B7433 /* WQVoiceCache.m */,
+				DE657DE21ED6967F000B7433 /* WQVoiceDownloader.h */,
+				DE657DE31ED6967F000B7433 /* WQVoiceDownloader.m */,
+				DE657DE41ED6967F000B7433 /* WQVoiceDownloadOperation.h */,
+				DE657DE51ED6967F000B7433 /* WQVoiceDownloadOperation.m */,
+				DE657DE61ED6967F000B7433 /* WQVoicePlayManager.h */,
+				DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */,
+				DE657DE81ED6967F000B7433 /* WQVoiceRecordManager.h */,
+				DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */,
+			);
+			path = WQVoiceManager;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		DE657C841ED67C0C000B7433 /* WQVoiceToolDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE657C9F1ED67C0C000B7433 /* Build configuration list for PBXNativeTarget "WQVoiceToolDemo" */;
+			buildPhases = (
+				DE657C811ED67C0C000B7433 /* Sources */,
+				DE657C821ED67C0C000B7433 /* Frameworks */,
+				DE657C831ED67C0C000B7433 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WQVoiceToolDemo;
+			productName = WQVoiceToolDemo;
+			productReference = DE657C851ED67C0C000B7433 /* WQVoiceToolDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DE657C7D1ED67C0C000B7433 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0830;
+				ORGANIZATIONNAME = WQMapKit;
+				TargetAttributes = {
+					DE657C841ED67C0C000B7433 = {
+						CreatedOnToolsVersion = 8.3.2;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = DE657C801ED67C0C000B7433 /* Build configuration list for PBXProject "WQVoiceToolDemo" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = DE657C7C1ED67C0C000B7433;
+			productRefGroup = DE657C861ED67C0C000B7433 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				DE657C841ED67C0C000B7433 /* WQVoiceToolDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		DE657C831ED67C0C000B7433 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE657C9B1ED67C0C000B7433 /* LaunchScreen.storyboard in Resources */,
+				DE657C981ED67C0C000B7433 /* Assets.xcassets in Resources */,
+				DE657C931ED67C0C000B7433 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DE657C811ED67C0C000B7433 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE657DEB1ED6967F000B7433 /* WQVoiceDownloader.m in Sources */,
+				DE657DED1ED6967F000B7433 /* WQVoicePlayManager.m in Sources */,
+				DE657C901ED67C0C000B7433 /* ViewController.m in Sources */,
+				DE657C961ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld in Sources */,
+				DE657C8D1ED67C0C000B7433 /* AppDelegate.m in Sources */,
+				DE657DEC1ED6967F000B7433 /* WQVoiceDownloadOperation.m in Sources */,
+				DE657DEA1ED6967F000B7433 /* WQVoiceCache.m in Sources */,
+				DE657DEE1ED6967F000B7433 /* WQVoiceRecordManager.m in Sources */,
+				DE657C8A1ED67C0C000B7433 /* main.m in Sources */,
+				DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		DE657C911ED67C0C000B7433 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE657C921ED67C0C000B7433 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		DE657C991ED67C0C000B7433 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DE657C9A1ED67C0C000B7433 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		DE657C9D1ED67C0C000B7433 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		DE657C9E1ED67C0C000B7433 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DE657CA01ED67C0C000B7433 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PREFIX_HEADER = /Users/ggg/Desktop/Components/WQVoiceToolDemo/WQVoiceToolDemo/PrefixHeader.pch;
+				INFOPLIST_FILE = WQVoiceToolDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = WQ.WQVoiceToolDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		DE657CA11ED67C0C000B7433 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				GCC_PREFIX_HEADER = /Users/ggg/Desktop/Components/WQVoiceToolDemo/WQVoiceToolDemo/PrefixHeader.pch;
+				INFOPLIST_FILE = WQVoiceToolDemo/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = WQ.WQVoiceToolDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		DE657C801ED67C0C000B7433 /* Build configuration list for PBXProject "WQVoiceToolDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE657C9D1ED67C0C000B7433 /* Debug */,
+				DE657C9E1ED67C0C000B7433 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DE657C9F1ED67C0C000B7433 /* Build configuration list for PBXNativeTarget "WQVoiceToolDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE657CA01ED67C0C000B7433 /* Debug */,
+				DE657CA11ED67C0C000B7433 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		DE657C941ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				DE657C951ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodel */,
+			);
+			currentVersion = DE657C951ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodel */;
+			path = WQVoiceToolDemo.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = DE657C7D1ED67C0C000B7433 /* Project object */;
+}
