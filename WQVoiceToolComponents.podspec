@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "WQVoiceToolComponents"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "音频组件"
 
   s.description  = <<-DESC
@@ -38,6 +38,7 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, "8.0"
 
+  s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
   
    non_arc_files = 'WQVoiceToolComponents/amrwapper/*.{h,m}'
    s.requires_arc = true

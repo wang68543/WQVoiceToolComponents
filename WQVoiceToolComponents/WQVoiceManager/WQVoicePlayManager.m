@@ -15,7 +15,13 @@
 @property (strong ,nonatomic) AVAudioPlayer *player;
 
 @property (copy ,nonatomic) WQVoicePlayFinshBlock playFinshed;
-@property (copy ,nonatomic) NSString *currentURL;
+
+@property (copy ,nonatomic) WQVoicePlayBeginBlock playBegin;
+
+@property (copy ,nonatomic) NSURL *currentURL;
+
+/** 旧的播放模型 */
+@property (strong ,nonatomic) id<WQMediaPlayStateProtocol> oldPlayMediaModel;
 
 @end
 @implementation WQVoicePlayManager
@@ -23,7 +29,8 @@ static WQVoicePlayManager *_instance;
 +(instancetype)manager{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _instance = [[self alloc] initWithCache:[WQVoiceCache sharedCache] downloader:[WQVoiceDownloader sharedVoiceDownloader]];
+        WQVoiceCache *voiceCache = [[WQVoiceCache alloc] initWithNamespace:NSStringFromClass([self class])];
+        _instance = [[self alloc] initWithCache:voiceCache downloader:[[WQVoiceDownloader alloc] initWithCache:voiceCache]];
     });
     return _instance;
 }
@@ -35,26 +42,21 @@ static WQVoicePlayManager *_instance;
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
         _voiceCache = cache;
         _downloader = downloader;
-        _cachePocilty = WQVoiceCacheTypeDisk;
     }
     return self;
 }
 -(BOOL)isPlaying{
     return self.player && self.player.isPlaying;
 }
-
 -(void)stopCurrentPlay{
-    if(self.isPlaying){
-        [self.player stop];
-        self.currentPlayMediaModel.isMediaPlaying = NO;
-        //中途被打断
-        _playFinshed ? _playFinshed(nil,_currentURL,NO):nil;
-        _playFinshed = nil;
-        self.player = nil;
-        _currentURL = nil;
-    }
+    [self stopCurrentPlayWithModel:self.currentPlayMediaModel];
 }
+
+#pragma mark -- 私有方法
+
 -(void)playWithData:(NSData *)data{
+     //当存在回调block的时候 下载完了监测下block是否存在 如果还存在就播放否则就不播放
+    
      NSError *error;
     do {
         self.player = [[AVAudioPlayer alloc] initWithData:data error:&error];
@@ -66,102 +68,126 @@ static WQVoicePlayManager *_instance;
             error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"播放失败"}];
         }
     } while (NO);
+   
     if(error){
-        _playFinshed ? _playFinshed(error,_currentURL,YES):nil;
-        _currentURL = nil;
-        _player = nil;
-        _playFinshed = nil;
+         _playBegin ? _playBegin(error,_currentURL):nil;
+        //此处结束了 不回调finshBlock
+        [self playFinshReset:NO];
     }else{
         if(self.currentPlayMediaModel){
-            self.currentPlayMediaModel.isMediaPlaying = YES;
+            [self.currentPlayMediaModel setMediaPlaying:YES];
         }
        self.player.delegate = self;
+      _playBegin ? _playBegin(nil,_currentURL):nil;
     }
+   
 }
-- (void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self playMedia:mediaModel downFinsh:NULL playFinsh:playFinshedBlock];
-}
--(void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel downFinsh:(WQVoiceDowonFinshBlock)downFinshedBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self play:[mediaModel mediaPath] downFinsh:downFinshedBlock playFinsh:playFinshedBlock];
-    self.currentPlayMediaModel = mediaModel;
-}
-- (void)play:(NSString *)voicePath
-   playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self play:voicePath downFinsh:nil playFinsh:playFinshedBlock];
+-(void)stopCurrentPlayWithModel:(id<WQMediaPlayStateProtocol>)model{
+    if(self.isPlaying){
+        [self.player stop];
+        if(model){
+            [model setMediaPlaying:NO];
+        }
+    }
+    //中途被打断
+    [self playFinshReset:NO];
 }
 
+-(void)playFinshReset:(BOOL)finshed{
+    _playBegin = nil;
+    _playFinshed = nil;
+    _player = nil;
+    _currentURL = nil;
+    _oldPlayMediaModel = nil;
+}
+
+#pragma mark -- 私有方法End
+
+-(void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+    _currentPlayMediaModel = mediaModel;
+    [self play:[mediaModel mediaPath] playBegin:playBeginBlock playFinsh:playFinshedBlock];
+}
+-(void)play:(NSString *)voicePath playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+    [self play:voicePath downProgress:NULL downComplete:NULL playBegin:playBeginBlock playFinsh:playFinshedBlock];
+}
 
 //TODO: 语音播放 1.停止当前正在播放的 2.下载或缓存中取音频文件 3.取到文件当存在block的时候开始播放 没取到文件的时候直接调下载完成block然后调播放完成的block 4.正常播放回调播放完成block
--(void)play:(NSString *)voicePath downFinsh:(WQVoiceDowonFinshBlock)downFinshedBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self stopCurrentPlay];//这里停止播放对旧的模型以及旧的block进行回调 在这之后再进行模型和block重新赋值
+-(void)play:(NSString *)voicePath downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+  
+    //重复点击了 就默认停止、不再播放
+    if(voicePath && _currentURL && [voicePath isEqualToString:_currentURL.absoluteString]){
+        [self stopCurrentPlayWithModel:self.oldPlayMediaModel];
+        return;
+    }
+    
+    [self stopCurrentPlayWithModel:self.oldPlayMediaModel];//这里停止播放对旧的模型以及旧的block进行回调 在这之后再进行模型和block重新赋值
+    self.oldPlayMediaModel = self.currentPlayMediaModel;
     
     NSString *key = [_voiceCache cacheKeyForURL:voicePath];
     //不存在key的时候就
     if(key.length <= 0){
-        playFinshedBlock?playFinshedBlock([NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"音频路径不存在"}],voicePath,YES):nil;
+        playFinshedBlock?playFinshedBlock([NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"音频路径不存在"}],nil,YES):nil;
     }
+    
     __weak typeof(self) weakSelf = self;
     
-    //当存在回调block的时候 下载完了监测下block是否存在 如果还存在就播放否则就不播放
-   __block  BOOL isNeedCheckToPlay ;
-    if(playFinshedBlock){
-        isNeedCheckToPlay = YES;
-    }else{
-        isNeedCheckToPlay = NO;
-    }
-    [_voiceCache queryVoiceCacheForKey:key done:^(NSData *voiceData, WQVoiceCacheType cacheType) {
+   
+    self.playBegin = playBeginBlock;
+    self.playFinshed  = playFinshedBlock;
+    
+    
+    __weak  NSURL *voiceURL = [NSURL URLWithString:voicePath];
+     self.currentURL = voiceURL;
+    [self.voiceCache queryVoiceCacheForKey:key done:^(NSString *voicePath, WQVoiceCacheType cacheType) {
+        NSData *voiceData = [self audioDataWithPath:voicePath];
         if(voiceData){
-            if(isNeedCheckToPlay){
-                if(playFinshedBlock){
-                    [weakSelf playWithData:voiceData];
-                }
-            }else{
-                [weakSelf playWithData:voiceData];
-            }
-            downFinshedBlock?downFinshedBlock(voiceData,cacheType,voicePath,nil):nil;
-//             [weakSelf stopCurrentPlay];
-            _currentURL = voicePath;
-            _playFinshed = [playFinshedBlock copy];
+            //读取文件完成回调
+            completeBlock?completeBlock(voiceData,voicePath,cacheType,voiceURL,nil):nil;
+            [weakSelf playWithData:voiceData];
         }else{
-            [_downloader downloadVoiceWithURL:[NSURL URLWithString:voicePath] completed:^(NSData *voiceData, WQVoiceCacheType cacheType, NSString *urlStr, NSError *error) {
+            [weakSelf.downloader downloadWithURL:voiceURL progress:progressBlock completed:^(NSData *voiceData ,NSString *cachePath, WQVoiceCacheType cacheType, NSURL *url, NSError *error) {
                 if(voiceData){
-                    if(isNeedCheckToPlay){
-                        if(playFinshedBlock){
-                            [weakSelf playWithData:voiceData];
-                        }
-                    }else{
-                        [weakSelf playWithData:voiceData];
-                    }
-                  downFinshedBlock?downFinshedBlock(voiceData,cacheType,urlStr,nil):nil;
-//                    [weakSelf stopCurrentPlay];
-                    _currentURL = urlStr;
-                    _playFinshed = [playFinshedBlock copy];
-                    [weakSelf.voiceCache storeVoice:voiceData forKey:key];
+                    //下载完成
+                    completeBlock?completeBlock(voiceData,cachePath,cacheType,url,nil):nil;
+                   [weakSelf playWithData:voiceData];
                 }else{
                     
-                   downFinshedBlock?downFinshedBlock(voiceData,cacheType,urlStr,error):nil;
-//                    [weakSelf stopCurrentPlay];
-                    _playFinshed = nil;
-                    playFinshedBlock?playFinshedBlock(error,urlStr,YES):nil;
+                    if(!error){
+                        error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey:@"radio download failed!"}];
+                    }
+                    //下载完成
+                    completeBlock?completeBlock(voiceData,cachePath,cacheType,url,error):nil;
+                    weakSelf.playBegin = nil;
+                    weakSelf.playFinshed = nil;
+                    weakSelf.currentURL = nil;
                 }
             }];
+            
         }
     }];
 }
-
+#pragma mark -- 私有方法
+#pragma mark -- -根据路劲读取语音
+- (NSData *)audioDataWithPath:(NSString *)audioPath{
+    if(!audioPath || audioPath.length <= 0) return nil;
+   return  [NSData dataWithContentsOfFile:audioPath];
+}
 #pragma mark -- AVAudioPlayerDelegate
 -(void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag{
     _playFinshed ? _playFinshed(nil,_currentURL,flag):nil;
-    _player = nil;
+    [self playFinshReset:YES];
 }
 -(void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error{
     _playFinshed ? _playFinshed(error,_currentURL,YES):nil;
-    _player = nil;
+     [self playFinshReset:YES];
 }
+
 - (void)dealloc{
     if(self.isPlaying){
         [self.player stop];
     }
+    _playBegin = nil;
+    _playFinshed = nil;
     NSLog(@"===播放工具销毁了");
 }
 @end
