@@ -9,6 +9,8 @@
 #import "WQVoiceRecordManager.h"
 #import <AVFoundation/AVFoundation.h>
 #import "amrFileCodec.h"
+#import "WQVoicePlayManager.h"
+
 @interface WQVoiceRecordManager()
 @property (strong ,nonatomic) NSOperationQueue *operationQueue;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
@@ -177,7 +179,6 @@
                 break;
         }
     };
-    
     NSOperation *operatio = [self addBlockOperation:block];
     [operatio setCompletionBlock:^{
         convertFinshed?convertFinshed(convertData):nil;

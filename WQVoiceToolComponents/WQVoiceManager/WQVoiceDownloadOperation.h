@@ -33,8 +33,12 @@ typedef void (^WQVoiceDownloadCompleteBlock)(NSData * _Nullable voiceData , NSSt
 @property (strong ,nonatomic,nullable) WQVoiceCache *voiceCache;
 
 
-
--(nonnull instancetype)initWithRequest:(nonnull NSURLRequest *)request inSession:(nullable NSURLSession *)session options:(WQVoiceOptions)options progress:(nullable WQVoiceDownProgressBlock)progressBlock complete:(nullable WQVoiceDownloadCompleteBlock)completeBlock cancelBlock:(nonnull dispatch_block_t)cancelBlock;
+-(nonnull instancetype)initWithRequest:(nonnull NSURLRequest *)request
+                             inSession:(nullable NSURLSession *)session
+                               options:(WQVoiceOptions)options
+                              progress:(nullable WQVoiceDownProgressBlock)progressBlock
+                              complete:(nullable WQVoiceDownloadCompleteBlock)completeBlock
+                           cancelBlock:(nonnull dispatch_block_t)cancelBlock;
 //TODO: 采用session下载
 /** 请求对象 */
 @property (strong, nonatomic, readonly,nonnull) NSURLRequest *request;

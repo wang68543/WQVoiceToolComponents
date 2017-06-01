@@ -64,12 +64,14 @@ typedef void(^WQVoicePlayBeginBlock)(NSError *error ,NSURL *url);
  播放音频
  
  @param voicePath 音频路径
+ @param options 音频下载之后的处理选项
  @param progressBlock 音频下载过程
  @param completeBlock 完成下载语音
  @param playBeginBlock 音频开始播放了
  @param playFinshedBlock 播放完成
  */
- - (void)play:(NSString *)voicePath
+- (void)play:(NSString *)voicePath
+     options:(WQVoiceOptions)options
  downProgress:(WQVoiceDownProgressBlock)progressBlock
  downComplete:(WQVoiceCacheCompleteBlock)completeBlock
     playBegin:(WQVoicePlayBeginBlock)playBeginBlock

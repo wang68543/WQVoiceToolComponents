@@ -15,14 +15,6 @@ typedef NS_ENUM(NSInteger,WQVoiceCacheType) {
     WQVoiceCacheTypeMemory,
 };
 
-
-///** 文件缓存类型 */
-//typedef enum : NSUInteger {
-//    WQVoiceCachePolicyNone,//直接加载到内存中不缓存
-//    WQVoiceCachePolicyToDisk,//直接存储到磁盘上
-//    WQVoiceCachePolicyMemoryCache,//加载到内存中并缓存
-//} WQVoiceCachePolicy;
-
 typedef void (^WQVoiceQueryCompleteBlock) (NSString *voicePath,WQVoiceCacheType cacheType);
 @interface WQVoiceCache : NSObject
 //TODO: 工具方法
@@ -42,8 +34,6 @@ typedef void (^WQVoiceQueryCompleteBlock) (NSString *voicePath,WQVoiceCacheType 
 
 + (instancetype)sharedCache;
 
-//@property (assign ,nonatomic) WQVoiceCachePolicy cachePolicy;
-
 /** 默认通过内存缓存 */
 - (instancetype)initWithNamespace:(NSString *)name;
 /**
@@ -53,8 +43,6 @@ typedef void (^WQVoiceQueryCompleteBlock) (NSString *voicePath,WQVoiceCacheType 
  @param directory 语音文件存储的根路径
  */
 - (instancetype)initWithNamespace:(NSString *)name diskCacheDirectory:(NSString *)directory;
-
-//- (instancetype)initWithNamespace:(NSString *)name diskCacheDirectory:(NSString *)directory cachePolicy:(WQVoiceCachePolicy)cachePolicy;
 
 /** 存储语音(本地都是存储iOS可播放的音频(不带后缀名)) */
 - (void)storeVoice:(NSData *)voiceData forKey:(NSString *)key;

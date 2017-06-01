@@ -108,12 +108,11 @@ static WQVoicePlayManager *_instance;
     [self play:[mediaModel mediaPath] playBegin:playBeginBlock playFinsh:playFinshedBlock];
 }
 -(void)play:(NSString *)voicePath playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self play:voicePath downProgress:NULL downComplete:NULL playBegin:playBeginBlock playFinsh:playFinshedBlock];
+    [self play:voicePath options:WQVoiceDownloadCacheInData downProgress:NULL downComplete:NULL playBegin:playBeginBlock playFinsh:playFinshedBlock];
 }
 
 //TODO: 语音播放 1.停止当前正在播放的 2.下载或缓存中取音频文件 3.取到文件当存在block的时候开始播放 没取到文件的时候直接调下载完成block然后调播放完成的block 4.正常播放回调播放完成block
--(void)play:(NSString *)voicePath downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-  
+-(void)play:(NSString *)voicePath options:(WQVoiceOptions)options downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
     //重复点击了 就默认停止、不再播放
     if(voicePath && _currentURL && [voicePath isEqualToString:_currentURL.absoluteString]){
         [self stopCurrentPlayWithModel:self.oldPlayMediaModel];
@@ -162,7 +161,6 @@ static WQVoicePlayManager *_instance;
                     weakSelf.currentURL = nil;
                 }
             }];
-            
         }
     }];
 }

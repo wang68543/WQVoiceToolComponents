@@ -58,28 +58,10 @@ static WQVoiceCache *_instance;
         }else{
             self.diskCachePath = cachePath;
         }
-        //        _cachePolicy = cachePolicy;
         _ioQueue = dispatch_queue_create("com.WQVoiceCache", DISPATCH_QUEUE_SERIAL);
     }
     return self;
 }
-//-(instancetype)initWithNamespace:(NSString *)name diskCacheDirectory:(NSString *)directory cachePolicy:(WQVoiceCachePolicy)cachePolicy{
-//    if(self = [self init]){
-//        if(!directory || directory.length <= 0){
-//            directory =  [self pathForVoiceDirectory];
-//        }
-//        NSString *cachePath = [directory stringByAppendingPathComponent:name];
-//        NSError *error = [self createPathIfNotExtist:cachePath];
-//        if(error){//创建出错就使用默认路径
-//            self.diskCachePath = [[self pathForVoiceDirectory] stringByAppendingPathComponent:name];
-//        }else{
-//            self.diskCachePath = cachePath;
-//        }
-////        _cachePolicy = cachePolicy;
-//        _ioQueue = dispatch_queue_create("com.WQVoiceCache", DISPATCH_QUEUE_SERIAL);
-//    }
-//    return self;
-//}
 //TODO: 保存文件
 -(void)storeVoice:(NSData *)voiceData forKey:(NSString *)key{
     if(voiceData){
@@ -92,16 +74,16 @@ static WQVoiceCache *_instance;
 
 //TODO: 查询缓存中是否有语音
 -(void)queryVoiceCacheForKey:(NSString *)key done:(WQVoiceQueryCompleteBlock)doneBlock{
-    NSOperation *operation = [NSOperation new];
     dispatch_async(_ioQueue, ^{
-        if(operation.isCancelled)return ;
-        @autoreleasepool {
-            NSString *voicePath = [self diskVoicePathForKey:key];
-            if(voicePath){
-                doneBlock(voicePath,WQVoiceCacheTypeDisk);
-            }else{
-                doneBlock(nil,WQVoiceCacheTypeNone);
-            }
+        NSString *voicePath = [self diskVoicePathForKey:key];
+        if(doneBlock){
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(voicePath){
+                    doneBlock(voicePath,WQVoiceCacheTypeDisk);
+                }else{
+                    doneBlock(nil,WQVoiceCacheTypeNone);
+                }
+            });
         }
     });
    
