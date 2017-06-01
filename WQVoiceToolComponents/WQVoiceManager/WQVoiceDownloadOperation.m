@@ -11,6 +11,12 @@
 @interface WQVoiceDownloadOperation(){
     NSString *_cacheKey;
 }
+
+
+/** 操作选项 */
+@property (assign ,nonatomic,readonly) WQVoiceOptions options;
+
+
 @property (copy ,nonatomic) WQVoiceCacheCompleteBlock completeBlock;
 @property (copy ,nonatomic) WQConvertVoiceBlock convertVoiceBlock;
 @property (assign ,nonatomic) WQConvertVoiceStyle style;
@@ -50,7 +56,7 @@
 -(void)setConvertVoiceOperationBlock:(WQConvertVoiceBlock)convertOperation{
     self.convertVoiceBlock = convertOperation;
 }
--(instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session progress:(WQVoiceDownProgressBlock)progressBlock complete:(WQVoiceDownloadCompleteBlock)completeBlock cancelBlock:(nonnull dispatch_block_t)cancelBlock{
+-(instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(WQVoiceOptions)options progress:(WQVoiceDownProgressBlock)progressBlock complete:(WQVoiceDownloadCompleteBlock)completeBlock cancelBlock:(dispatch_block_t)cancelBlock{
     if(self = [super init]){
         _request = [request copy];
         _unownedSession = session;
@@ -58,6 +64,8 @@
         _downloadComplete = [completeBlock copy];
         
         _cancelBlock = [cancelBlock copy];
+        
+        _options = options;
         /** fractionCompleted 完成的比例(0~1小数形式);
          * localizedDescription 完成百分比(百分比形式);
          * localizedAdditionalDescription 完成的大小 ;
@@ -72,7 +80,12 @@
     return self;
 }
 
-
+-(WQVoiceCache *)voiceCache{
+    if(!_voiceCache){
+        _voiceCache = [WQVoiceCache sharedCache];
+    }
+    return _voiceCache;
+}
 - (void)done{
     self.finished = YES;
     self.executing = NO;
@@ -93,7 +106,7 @@
     }
     self.completeBlock = nil;
     _cacheKey = nil;
-    self.voiceCache = nil;
+    _voiceCache = nil;
 }
 
 -(void)start{
@@ -301,8 +314,9 @@
     // 继续接收数据,什么都不要处理
     if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
-        _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
-        if(self.voiceCache && self.voiceCache.cachePolicy == WQVoiceCachePolicyToDisk){
+       
+        if(self.options&WQVoiceDownloadCacheInStream){
+            _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
             //开启输出流
            self.outputStream = [NSOutputStream outputStreamToFileAtPath:[[WQVoiceCache voiceCacheTempPath] stringByAppendingPathComponent:_cacheKey] append:YES];
              [self.outputStream open];
@@ -349,7 +363,6 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    NSLog(@"下载完成===%@",error);
     
     //    [self.outputStream close];
     //    self.outputStream = nil;
@@ -417,15 +430,15 @@
 //MARK: 缓存文件(返回存储路径)
 - (NSString *)storeVoice{
     NSString *voicePath;
-    if(self.voiceCache){
+    if((self.options & WQVoiceDownloadCacheInStream) || (self.options & WQVoiceDownloadCacheInData)){
+        if(!_cacheKey){
+           _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
+        }
+        voicePath = [self.voiceCache defaultCachePathForKey:_cacheKey];
         if(self.outputStream){
-            voicePath = [self.voiceCache defaultCachePathForKey:_cacheKey];
             [WQVoiceCache moveFile:[[WQVoiceCache voiceCacheTempPath] stringByAppendingPathComponent:_cacheKey] toPath:voicePath];
         }else{
-            if(self.voiceCache.cachePolicy != WQVoiceCachePolicyNone){
-                 [self.voiceCache storeVoice:self.voiceData forKey:_cacheKey];
-                voicePath = [self.voiceCache defaultCachePathForKey:_cacheKey];
-            }
+             [self.voiceCache storeVoice:self.voiceData forKey:_cacheKey];
         }
     }
     return voicePath;
@@ -480,7 +493,7 @@
     }
 }
 -(void)dealloc{
-    NSLog(@"线程销毁了");
+//    NSLog(@"线程销毁了");
 }
 
 @end

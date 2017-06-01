@@ -85,13 +85,15 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 
 -(void)downloadWithURL:(NSURL *)url progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceCacheCompleteBlock)compeletedBlock{
-    
+    [self downloadWithURL:url options:WQVoiceDownloadCacheInData progress:progressBlock completed:compeletedBlock];
+}
+-(void)downloadWithURL:(NSURL *)url options:(WQVoiceOptions)options progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceCacheCompleteBlock)compeletedBlock{
     __block  WQVoiceDownloadOperation *operation;
     __weak __typeof(self)wself = self;
     [self addProgressCallback:progressBlock completedBlock:compeletedBlock forURL:url createCallback:^{
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:wself.downloadTimeout];
         
-        operation = [[WQVoiceDownloadOperation alloc] initWithRequest:request inSession:self.session progress:^(NSProgress *downloadProgress) {
+        operation = [[WQVoiceDownloadOperation alloc] initWithRequest:request inSession:self.session options:options progress:^(NSProgress *downloadProgress) {
             WQVoiceDownloader *sself = wself;
             if (!sself) return;
             __block NSDictionary *callbacksForURL;
@@ -107,7 +109,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
                 WQVoiceDownProgressBlock callback = callbacksForURL[kProgressCallbackKey];
                 if (callback) callback(downloadProgress);
             });
-    
+            
         } complete:^(NSData * _Nullable voiceData, NSString * _Nullable voicePath,  NSError * _Nullable error, BOOL finshed) {
             WQVoiceDownloader *sself = wself;
             if (!sself) return;
@@ -120,7 +122,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
             });
             WQVoiceCacheCompleteBlock callback = callbacksForURL[kCompletedCallbackKey];
             dispatch_async(dispatch_get_main_queue(), ^{
-            if (callback) callback(voiceData,voicePath,WQVoiceCacheTypeNone ,url, error);
+                if (callback) callback(voiceData,voicePath,WQVoiceCacheTypeNone ,url, error);
             });
         } cancelBlock:^{
             WQVoiceDownloader *sself = wself;
@@ -134,6 +136,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
         operation.voiceCache = wself.voiceCache;
         [wself.downloadQueue addOperation:operation];
     }];
+
 }
 //TODO: 相同的音频路径 就覆盖之前的回调block
 - (void)addProgressCallback:(WQVoiceDownProgressBlock)progressBlock completedBlock:(WQVoiceCacheCompleteBlock)completedBlock forURL:(NSURL *)url createCallback:(dispatch_block_t)createCallback {
