@@ -15,7 +15,6 @@ static NSString *const kCompletedCallbackKey = @"completed";
 @interface WQVoiceDownloader()<NSURLSessionTaskDelegate, NSURLSessionDataDelegate>
 @property (strong ,nonatomic) NSOperationQueue *downloadQueue;
 @property (copy ,nonatomic) WQConvertVoiceBlock convertVoiceOperation;
-@property (assign ,nonatomic) WQConvertVoiceStyle convertVoiceStyle;
 
 @property (strong, nonatomic) NSURLSession *session;
 
@@ -41,7 +40,7 @@ static NSString *const kCompletedCallbackKey = @"completed";
     if (self) {
         _downloadQueue = [[NSOperationQueue alloc] init];
         _downloadQueue.maxConcurrentOperationCount = 5;
-        _convertVoiceStyle = WQConvertVoiceNone;
+        _convertStyle = WQConvertVoiceNone;
         
         _downloadTimeout = 15.0;
         _voiceCache = voiceCache;
@@ -69,10 +68,10 @@ static NSString *const kCompletedCallbackKey = @"completed";
 }
 - (void)voiceDownFinshed:(NSNotification *)notification{
 //    WQVoiceDownloadOperation *operation = notification.object;
-//    [self.downloadOperations removeObjectForKey:[operation.url absoluteString]];
+//    [self.downloadQueue.operations removeObserver:<#(nonnull NSObject *)#> forKeyPath:<#(nonnull NSString *)#>];
 }
 -(void)setConvertStyle:(WQConvertVoiceStyle)convertStyle{
-    _convertVoiceStyle = convertStyle;
+    _convertStyle = convertStyle;
     if(convertStyle != WQConvertVoiceNone){
       _convertVoiceOperation = nil;
     }

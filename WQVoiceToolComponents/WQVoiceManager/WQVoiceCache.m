@@ -26,20 +26,6 @@ static WQVoiceCache *_instance;
     return _instance;
 }
 
-/** 如果路径不存在就创建 */
--(NSError *)createPathIfNotExtist:(NSString *)path{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    if([fileManager fileExistsAtPath:path isDirectory:NULL]){
-        return nil;
-    }else{
-        [self createPathIfNotExtist:[path stringByDeletingLastPathComponent]];
-        NSError *error ;
-        if(path.pathExtension.length <= 0){
-            [fileManager createDirectoryAtPath:path withIntermediateDirectories:YES attributes:nil error:&error];
-        }
-        return error;
-    }
-}
 -(NSString *)pathForVoiceDirectory{
     return   [kCachePath stringByAppendingPathComponent:@"com.WQVoiceManager.Cache"];
 }
@@ -52,12 +38,19 @@ static WQVoiceCache *_instance;
             directory =  [self pathForVoiceDirectory];
         }
         NSString *cachePath = [directory stringByAppendingPathComponent:name];
-        NSError *error = [self createPathIfNotExtist:cachePath];
-        if(error){//创建出错就使用默认路径
-            self.diskCachePath = [[self pathForVoiceDirectory] stringByAppendingPathComponent:name];
+        NSFileManager *defaultManager = [NSFileManager defaultManager];
+        if(![defaultManager fileExistsAtPath:cachePath]){
+            NSError *error;
+            [defaultManager createDirectoryAtPath:cachePath withIntermediateDirectories:YES attributes:nil error:&error];
+            if(error){//创建出错就使用默认路径
+                self.diskCachePath = [[self pathForVoiceDirectory] stringByAppendingPathComponent:name];
+            }else{
+                self.diskCachePath = cachePath;
+            }
         }else{
             self.diskCachePath = cachePath;
         }
+        
         _ioQueue = dispatch_queue_create("com.WQVoiceCache", DISPATCH_QUEUE_SERIAL);
     }
     return self;

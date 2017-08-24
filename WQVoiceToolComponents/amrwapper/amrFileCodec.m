@@ -173,10 +173,20 @@ int caclAMRFrameSize(unsigned char frameHeader)
 	frameSize = myround((double)temp2 + 0.5);
 	return frameSize;
 }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsizeof-array-argument"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsizeof-pointer-memaccess"
 // 读第一个帧 - (参考帧)
 // 返回值: 0-出错; 1-正确
-int ReadAMRFrameFirstData(char* fpamr,int pos,int maxLen, unsigned char frameBuffer[], int* stdFrameSize, unsigned char* stdFrameHeader)
+int ReadAMRFrameFirstData(char* fpamr,int pos,NSInteger maxLen, unsigned char frameBuffer[], int* stdFrameSize, unsigned char* stdFrameHeader)
 {
     int nPos = 0;
 	memset(frameBuffer, 0, sizeof(frameBuffer));
@@ -309,7 +319,7 @@ NSData* DecodeAMRToWAVE(NSData* data) {
     }
     
 	const char* rfile = [data bytes];
-    int maxLen = [data length];
+    NSInteger maxLen = [data length];
     int pos = 0;
     
     //有可能是android 3gp格式
@@ -515,7 +525,10 @@ int ReadPCMFrame(short speech[], FILE* fpwave, int nChannels, int nBitsPerSample
             else
                 if (nBitsPerSample==16 && nChannels==2)
                 {
+
                     nRead = fread(pcmFrame_16b2, (nBitsPerSample/8), PCM_FRAME_SIZE*nChannels, fpwave);
+
+                    
                     for( x=0, y=0; y<PCM_FRAME_SIZE; y++,x+=2 )
                     {
                         //speech[y] = (short)pcmFrame_16b2[x+0];
@@ -635,12 +648,20 @@ int SkipCaffHead(char* buf){
             return 0;
         }
         
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
         u32 mChunkSize = readSint64(buf);buf+=8;
+#pragma clang diagnostic pop
+        
         if (mChunkSize<=0) {
             return 0;
         }
         if (i==2) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
             return buf-oldBuf;
+#pragma clang diagnostic pop
+           
         }
         buf += mChunkSize;
         
@@ -692,7 +713,11 @@ int EncodeWAVEFileToAMRFile(const char* pchWAVEFilename, const char* pchAMRFileN
         return 0;
     }
     /* write magic number to indicate single channel AMR file storage format */
-    bytes = fwrite(AMR_MAGIC_NUMBER, sizeof(char), strlen(AMR_MAGIC_NUMBER), fpamr);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+    bytes = fwrite(AMR_MAGIC_NUMBER,sizeof(char), strlen(AMR_MAGIC_NUMBER), fpamr);
+#pragma clang diagnostic pop
+    
     
     /* skip to pcm audio data*/
     SkipToPCMAudioData(fpwave);
@@ -735,7 +760,10 @@ NSData* EncodeWAVEToAMR(NSData* data, int nChannels, int nBitsPerSample)
     }
 //    [data writeToFile:wavFile atomically:YES];
     NSInteger nPos  = 0;
-   char * buf = [data bytes];
+
+     char * buf = [data bytes];
+
+  
     NSInteger maxLen = [data length];
     
 
@@ -753,4 +781,7 @@ NSData* EncodeWAVEToAMR(NSData* data, int nChannels, int nBitsPerSample)
 //    [amrData writeToFile:path atomically:YES];
     return amrData;
 }
-
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop

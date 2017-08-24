@@ -19,7 +19,6 @@
 
 @property (copy ,nonatomic) WQVoiceCacheCompleteBlock completeBlock;
 @property (copy ,nonatomic) WQConvertVoiceBlock convertVoiceBlock;
-@property (assign ,nonatomic) WQConvertVoiceStyle style;
 @property (copy ,nonatomic) WQVoiceDownProgressBlock progressBlock;
 @property (copy ,nonatomic) WQVoiceDownloadCompleteBlock downloadComplete;
 @property (copy ,nonatomic) dispatch_block_t cancelBlock;
@@ -182,7 +181,7 @@
             //同步block 顺序执行
             convertData =  _convertVoiceBlock(originalData);
         }else{
-            switch (_style) {
+            switch (_convertStyle) {
                     
                 case WQConvertBase64ToWav:
                     convertData = [[NSData alloc] initWithBase64EncodedData:originalData options:NSDataBase64DecodingIgnoreUnknownCharacters];

@@ -21,7 +21,7 @@
 @property (copy ,nonatomic) NSURL *currentURL;
 
 /** 旧的播放模型 */
-@property (strong ,nonatomic) id<WQMediaPlayStateProtocol> oldPlayMediaModel;
+//@property (strong ,nonatomic) id<WQMediaPlayStateProtocol> oldPlayMediaModel;
 
 @end
 @implementation WQVoicePlayManager
@@ -29,7 +29,8 @@ static WQVoicePlayManager *_instance;
 +(instancetype)manager{
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        WQVoiceCache *voiceCache = [[WQVoiceCache alloc] initWithNamespace:NSStringFromClass([self class])];
+//        WQVoiceCache *voiceCache = [[WQVoiceCache alloc] initWithNamespace:NSStringFromClass([self class])];
+        WQVoiceCache *voiceCache = [WQVoiceCache sharedCache];
         _instance = [[self alloc] initWithCache:voiceCache downloader:[[WQVoiceDownloader alloc] initWithCache:voiceCache]];
     });
     return _instance;
@@ -49,7 +50,12 @@ static WQVoicePlayManager *_instance;
     return self.player && self.player.isPlaying;
 }
 -(void)stopCurrentPlay{
-    [self stopCurrentPlayWithModel:self.currentPlayMediaModel];
+    if(self.isPlaying){
+        [self.player stop];
+        _playFinshed? _playFinshed(nil,_currentURL,NO):nil;
+    }
+    [self playFinshReset:NO];
+//    [self stopCurrentPlayWithModel:self.currentPlayMediaModel];
 }
 
 #pragma mark -- 私有方法
@@ -64,63 +70,70 @@ static WQVoicePlayManager *_instance;
         AVAudioSession *audioSession = [AVAudioSession sharedInstance];
         [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];
         if(error) break;
-        if(![self.player prepareToPlay] || ![self.player play]){
-            error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"播放失败"}];
+        if([self.player prepareToPlay]){
+            if(![self.player play]){
+               error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"播放失败"}];
+                 [self.player stop];
+            }
+        }else{
+             error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"准备播放失败"}];
         }
     } while (NO);
    
     if(error){
          _playBegin ? _playBegin(error,_currentURL):nil;
+        
         //此处结束了 不回调finshBlock
         [self playFinshReset:NO];
     }else{
-        if(self.currentPlayMediaModel){
-            [self.currentPlayMediaModel setMediaPlaying:YES];
-        }
+//        if(self.currentPlayMediaModel){
+//            [self.currentPlayMediaModel setMediaPlaying:YES];
+//        }
        self.player.delegate = self;
       _playBegin ? _playBegin(nil,_currentURL):nil;
     }
    
 }
--(void)stopCurrentPlayWithModel:(id<WQMediaPlayStateProtocol>)model{
+//播放打断
+- (void)interruptPlaying{
     if(self.isPlaying){
         [self.player stop];
-        if(model){
-            [model setMediaPlaying:NO];
-        }
+        _playFinshed? _playFinshed([NSError errorWithDomain:WQVoiceErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey:@"interrupt error"}],_currentURL,NO):nil;
     }
-    //中途被打断
     [self playFinshReset:NO];
 }
+//-(void)stopCurrentPlayWithModel:(id<WQMediaPlayStateProtocol>)model{
+//    if(self.isPlaying){
+//        [self.player stop];
+//    }
+//    if(model){
+//        [model setMediaPlaying:NO];
+//    }
+//    //中途被打断
+//    [self playFinshReset:NO];
+//}
 
 -(void)playFinshReset:(BOOL)finshed{
     _playBegin = nil;
     _playFinshed = nil;
     _player = nil;
     _currentURL = nil;
-    _oldPlayMediaModel = nil;
+//    _oldPlayMediaModel = nil;
 }
 
 #pragma mark -- 私有方法End
 
--(void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    _currentPlayMediaModel = mediaModel;
-    [self play:[mediaModel mediaPath] playBegin:playBeginBlock playFinsh:playFinshedBlock];
-}
+//-(void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+//    _currentPlayMediaModel = mediaModel;
+//    [self play:[mediaModel mediaPath] playBegin:playBeginBlock playFinsh:playFinshedBlock];
+//}
 -(void)play:(NSString *)voicePath playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
     [self play:voicePath options:WQVoiceDownloadCacheInData downProgress:NULL downComplete:NULL playBegin:playBeginBlock playFinsh:playFinshedBlock];
 }
 
 //TODO: 语音播放 1.停止当前正在播放的 2.下载或缓存中取音频文件 3.取到文件当存在block的时候开始播放 没取到文件的时候直接调下载完成block然后调播放完成的block 4.正常播放回调播放完成block
 -(void)play:(NSString *)voicePath options:(WQVoiceOptions)options downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    //重复点击了 就默认停止、不再播放
-    if(voicePath && _currentURL && [voicePath isEqualToString:_currentURL.absoluteString]){
-        [self stopCurrentPlayWithModel:self.oldPlayMediaModel];
-        return;
-    }
-    
-    [self stopCurrentPlayWithModel:self.oldPlayMediaModel];//这里停止播放对旧的模型以及旧的block进行回调 在这之后再进行模型和block重新赋值
-    self.oldPlayMediaModel = self.currentPlayMediaModel;
+    [self interruptPlaying];
     
     NSString *key = [_voiceCache cacheKeyForURL:voicePath];
     //不存在key的时候就
@@ -176,6 +189,7 @@ static WQVoicePlayManager *_instance;
     [self playFinshReset:YES];
 }
 -(void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error{
+
     _playFinshed ? _playFinshed(error,_currentURL,YES):nil;
      [self playFinshReset:YES];
 }
@@ -186,6 +200,5 @@ static WQVoicePlayManager *_instance;
     }
     _playBegin = nil;
     _playFinshed = nil;
-    NSLog(@"===播放工具销毁了");
 }
 @end

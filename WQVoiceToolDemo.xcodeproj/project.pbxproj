@@ -15,13 +15,13 @@
 		DE657C981ED67C0C000B7433 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE657C971ED67C0C000B7433 /* Assets.xcassets */; };
 		DE657C9B1ED67C0C000B7433 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE657C991ED67C0C000B7433 /* LaunchScreen.storyboard */; };
 		DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DC51ED6873D000B7433 /* amrFileCodec.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		DE657DD71ED6873D000B7433 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */; };
-		DE657DD81ED6873D000B7433 /* libopencore-amrwb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */; };
 		DE657DEA1ED6967F000B7433 /* WQVoiceCache.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE11ED6967F000B7433 /* WQVoiceCache.m */; };
 		DE657DEB1ED6967F000B7433 /* WQVoiceDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE31ED6967F000B7433 /* WQVoiceDownloader.m */; };
 		DE657DEC1ED6967F000B7433 /* WQVoiceDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE51ED6967F000B7433 /* WQVoiceDownloadOperation.m */; };
 		DE657DED1ED6967F000B7433 /* WQVoicePlayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */; };
 		DE657DEE1ED6967F000B7433 /* WQVoiceRecordManager.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */; };
+		DEFF5BE11F444D7B00BB20D3 /* libopencore-amrnb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DEFF5BDF1F444D7B00BB20D3 /* libopencore-amrnb.a */; };
+		DEFF5BE21F444D7B00BB20D3 /* libopencore-amrwb.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DEFF5BE01F444D7B00BB20D3 /* libopencore-amrwb.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,12 +38,6 @@
 		DE657C9C1ED67C0C000B7433 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE657DC41ED6873D000B7433 /* amrFileCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amrFileCodec.h; sourceTree = "<group>"; };
 		DE657DC51ED6873D000B7433 /* amrFileCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = amrFileCodec.m; sourceTree = "<group>"; };
-		DE657DC61ED6873D000B7433 /* dec_if.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dec_if.h; sourceTree = "<group>"; };
-		DE657DC71ED6873D000B7433 /* if_rom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = if_rom.h; sourceTree = "<group>"; };
-		DE657DC81ED6873D000B7433 /* interf_dec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_dec.h; sourceTree = "<group>"; };
-		DE657DC91ED6873D000B7433 /* interf_enc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_enc.h; sourceTree = "<group>"; };
-		DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
-		DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrwb.a"; sourceTree = "<group>"; };
 		DE657DDE1ED68902000B7433 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		DE657DE01ED6967F000B7433 /* WQVoiceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceCache.h; sourceTree = "<group>"; };
 		DE657DE11ED6967F000B7433 /* WQVoiceCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceCache.m; sourceTree = "<group>"; };
@@ -55,6 +49,12 @@
 		DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoicePlayManager.m; sourceTree = "<group>"; };
 		DE657DE81ED6967F000B7433 /* WQVoiceRecordManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceRecordManager.h; sourceTree = "<group>"; };
 		DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceRecordManager.m; sourceTree = "<group>"; };
+		DEFF5BDB1F444D7B00BB20D3 /* dec_if.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dec_if.h; sourceTree = "<group>"; };
+		DEFF5BDC1F444D7B00BB20D3 /* if_rom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = if_rom.h; sourceTree = "<group>"; };
+		DEFF5BDD1F444D7B00BB20D3 /* interf_dec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_dec.h; sourceTree = "<group>"; };
+		DEFF5BDE1F444D7B00BB20D3 /* interf_enc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interf_enc.h; sourceTree = "<group>"; };
+		DEFF5BDF1F444D7B00BB20D3 /* libopencore-amrnb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrnb.a"; sourceTree = "<group>"; };
+		DEFF5BE01F444D7B00BB20D3 /* libopencore-amrwb.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopencore-amrwb.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,8 +62,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE657DD81ED6873D000B7433 /* libopencore-amrwb.a in Frameworks */,
-				DE657DD71ED6873D000B7433 /* libopencore-amrnb.a in Frameworks */,
+				DEFF5BE21F444D7B00BB20D3 /* libopencore-amrwb.a in Frameworks */,
+				DEFF5BE11F444D7B00BB20D3 /* libopencore-amrnb.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,14 +125,14 @@
 		DE657DC31ED6873D000B7433 /* amrwapper */ = {
 			isa = PBXGroup;
 			children = (
+				DEFF5BDB1F444D7B00BB20D3 /* dec_if.h */,
+				DEFF5BDC1F444D7B00BB20D3 /* if_rom.h */,
+				DEFF5BDD1F444D7B00BB20D3 /* interf_dec.h */,
+				DEFF5BDE1F444D7B00BB20D3 /* interf_enc.h */,
+				DEFF5BDF1F444D7B00BB20D3 /* libopencore-amrnb.a */,
+				DEFF5BE01F444D7B00BB20D3 /* libopencore-amrwb.a */,
 				DE657DC41ED6873D000B7433 /* amrFileCodec.h */,
 				DE657DC51ED6873D000B7433 /* amrFileCodec.m */,
-				DE657DC61ED6873D000B7433 /* dec_if.h */,
-				DE657DC71ED6873D000B7433 /* if_rom.h */,
-				DE657DC81ED6873D000B7433 /* interf_dec.h */,
-				DE657DC91ED6873D000B7433 /* interf_enc.h */,
-				DE657DCA1ED6873D000B7433 /* libopencore-amrnb.a */,
-				DE657DCB1ED6873D000B7433 /* libopencore-amrwb.a */,
 			);
 			path = amrwapper;
 			sourceTree = "<group>";
@@ -185,6 +185,7 @@
 				TargetAttributes = {
 					DE657C841ED67C0C000B7433 = {
 						CreatedOnToolsVersion = 8.3.2;
+						DevelopmentTeam = A62P7KCW2T;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -354,6 +355,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A62P7KCW2T;
+				ENABLE_BITCODE = YES;
 				GCC_PREFIX_HEADER = /Users/ggg/Desktop/Components/WQVoiceToolDemo/WQVoiceToolDemo/PrefixHeader.pch;
 				INFOPLIST_FILE = WQVoiceToolDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -361,7 +364,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = WQ.WQVoiceToolDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = GuardianEnterprise;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -370,6 +373,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = A62P7KCW2T;
+				ENABLE_BITCODE = YES;
 				GCC_PREFIX_HEADER = /Users/ggg/Desktop/Components/WQVoiceToolDemo/WQVoiceToolDemo/PrefixHeader.pch;
 				INFOPLIST_FILE = WQVoiceToolDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -377,7 +382,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = WQ.WQVoiceToolDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = GuardianEnterprise;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

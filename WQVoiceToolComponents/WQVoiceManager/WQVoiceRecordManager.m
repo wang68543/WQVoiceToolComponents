@@ -14,7 +14,7 @@
 @interface WQVoiceRecordManager()
 @property (strong ,nonatomic) NSOperationQueue *operationQueue;
 @property (nonatomic, strong) AVAudioRecorder *recorder;
-@property (strong ,nonatomic) WQVoiceCache *voiceCache;
+
 @property (copy ,nonatomic) NSString *recordKey;
 /**语音格式转换*/
 @property (assign ,nonatomic) WQRecordConvertStyle convertStyle;
@@ -43,7 +43,8 @@
         _minRecordDuration = 2.0;
         _recordSettings = [self defaultRecordSetting];
         _operationQueue = [[NSOperationQueue alloc] init];
-        _operationQueue.maxConcurrentOperationCount = 5;
+        _operationQueue.maxConcurrentOperationCount = 2;
+        _convertStyle = WQRecordConvertNone;
     }
     return self;
 }
@@ -127,20 +128,15 @@
 - (void)updateRecordMeters{
     if(self.isRecording){
         [self.recorder updateMeters];
-        // 如果分贝不超过-20 几乎为静音
-        float power = [self.recorder averagePowerForChannel:0];
+        // 如果分贝不超过-20 几乎为静音 peakPowerForChannel:音量的最大值
+        double power = [self.recorder averagePowerForChannel:0];
+//        double power = pow(10, [self.recorder averagePowerForChannel:0]*0.05);//使得power的取值范围是0~1
         _metersBlock?_metersBlock(power):nil;
     }else{
         [self removeUpdateMetersTimer];
     }
     
 }
-//- (NSError *)recordWithName:(NSString *)name
-//             stopedCallback:(WQRecordFinshBlock)callBack{
-//    NSError *error = [self recordWithName:name];
-//    _stopCallback = [callBack copy];
-//    return error;
-//}
 -(NSData *)getRecordData{
     if(!_recordKey|| _recordKey.length <= 0 ){
             return nil;
@@ -157,9 +153,10 @@
 - (void)setUpdateMetersBlock:(WQUpdateMetersBlock)updateMeter{
     _metersBlock = [updateMeter copy];
 }
+
+
 -(void)addConvertRecord:(WQRecordConvertStyle)style down:(WQConvertRecordFinshed)convertFinshed{
-    
-     __block NSData *convertData;
+     __block NSData *convertData = nil;
     NSData *data = [self getRecordData];
     dispatch_block_t block = ^{
         switch (style) {
@@ -175,20 +172,19 @@
 //                break;
             case WQRecordConvertNone:
             default:
-                convertData = data;
                 break;
         }
     };
     NSOperation *operatio = [self addBlockOperation:block];
     [operatio setCompletionBlock:^{
-        convertFinshed?convertFinshed(convertData):nil;
+        convertFinshed?convertFinshed(data,convertData):nil;
     }];
 }
 
 - (void)addConvertRecordOperation:(WQConvertRecord)convertOperation down:(WQConvertRecordFinshed)convertFinshed{
     NSData *data = [self getRecordData];
     if (!data){
-        convertFinshed?convertFinshed(nil):nil;
+        convertFinshed?convertFinshed(nil,nil):nil;
         return;
     }
      __block NSData *convertData;
@@ -196,13 +192,18 @@
        convertData = convertOperation(data);
     }];
     [operatio setCompletionBlock:^{
-        convertFinshed?convertFinshed(convertData):nil;
+        convertFinshed?convertFinshed(data,convertData):nil;
     }];
 }
 
-//-(void)stop{
-//    [self stopRecord:_stopCallback];
-//}
+- (void)cancelRecord{
+    [self removeUpdateMetersTimer];
+    if(self.isRecording){
+        [self.recorder stop];
+        [self.recorder deleteRecording];
+    }
+}
+
 -(void)stopRecord:(WQRecordFinshBlock)recordFinsh{
     [self removeUpdateMetersTimer];
     BOOL deleteRecord = NO;
@@ -230,7 +231,27 @@
     }
     self.recorder = nil;
 }
-
+-(void)stopFinshConvertRecord:(WQStopFinshConvert)stopAndConvert{
+    __weak typeof(self) weakSelf = self;
+    [self stopRecord:^BOOL(NSString *voicePath, CGFloat duration, NSError *error) {
+        if(stopAndConvert){
+            if(weakSelf.convertStyle != WQRecordConvertNone){
+                [weakSelf addConvertRecord:weakSelf.convertStyle down:^(NSData *originData, NSData *conversionData) {
+                    stopAndConvert(voicePath,originData,conversionData,duration,error);
+                }];
+            }else if(weakSelf.converRecordBlock){
+                [weakSelf addConvertRecordOperation:weakSelf.converRecordBlock down:^(NSData *originData, NSData *conversionData) {
+                    stopAndConvert(voicePath,originData,conversionData,duration,error);
+                }];
+            }else{
+                NSData *originData = [self getRecordData];
+               stopAndConvert(voicePath,originData,nil,duration,error);
+            }
+            
+        }
+        return NO;
+    }];
+}
 //-(void)post:(NSString *)path params:(NSDictionary *)params success:(HttpSuccessBlock)success failure:(HttpFailureBlock)failure{
 //    __weak typeof(self) weakSelf = self;
 //    if(self.converRecordBlock){
@@ -262,13 +283,7 @@
     };
     [self addJobToQueue:block];
 }
-#pragma mark --  /**外界主动打断录音*/
--(void)interruptRecord{
-    if(self.isRecording){
-        [self.recorder stop];
-        [self.recorder deleteRecording];
-    }
-}
+
 -(void)dealloc{
     if(self.recorder.isRecording){
         [self.recorder stop];

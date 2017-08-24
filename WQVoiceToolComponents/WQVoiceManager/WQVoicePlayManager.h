@@ -10,12 +10,12 @@
 #import "WQVoiceCache.h"
 #import "WQVoiceDownloader.h"
 
-//TODO: 用于记录模型的播放状态
-@protocol WQMediaPlayStateProtocol <NSObject>
-@property (assign ,nonatomic,getter=isMediaPlaying) BOOL mediaPlaying;
-/** 音频路径 */
--(NSString *)mediaPath;
-@end
+////TODO: 用于记录模型的播放状态
+//@protocol WQMediaPlayStateProtocol <NSObject>
+//@property (assign ,nonatomic,getter=isMediaPlaying) BOOL mediaPlaying;
+///** 音频路径 */
+//-(NSString *)mediaPath;
+//@end
 /**
  音频播放完成回调
 
@@ -46,15 +46,15 @@ typedef void(^WQVoicePlayBeginBlock)(NSError *error ,NSURL *url);
 /**
  当前正在播放的音频文件对应的模型 (主要用于播放异常终止而此时Block不存在或不对应的时候将模型的播放状态置为NO )
  */
-@property (strong ,nonatomic,readonly) id<WQMediaPlayStateProtocol> currentPlayMediaModel;
+//@property (strong ,nonatomic,readonly) id<WQMediaPlayStateProtocol> currentPlayMediaModel;
 /**
  根据音频的模型进行音频播放
  
  @param mediaModel 音频模型
  */
-- (void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel
-        playBegin:(WQVoicePlayBeginBlock)playBeginBlock
-        playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock;
+//- (void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel
+//        playBegin:(WQVoicePlayBeginBlock)playBeginBlock
+//        playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock;
 
 - (void)play:(NSString *)voicePath
    playBegin:(WQVoicePlayBeginBlock)playBeginBlock
@@ -67,7 +67,7 @@ typedef void(^WQVoicePlayBeginBlock)(NSError *error ,NSURL *url);
  @param options 音频下载之后的处理选项
  @param progressBlock 音频下载过程
  @param completeBlock 完成下载语音
- @param playBeginBlock 音频开始播放了
+ @param playBeginBlock 音频开始播放回调(有可能开始失败了 开始成功了就必定会调结束的Block)
  @param playFinshedBlock 播放完成
  */
 - (void)play:(NSString *)voicePath
