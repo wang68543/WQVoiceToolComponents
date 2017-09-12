@@ -40,21 +40,25 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
   
-   non_arc_files = 'WQVoiceToolComponents/amrwapper/*.{h,m}'
-   s.requires_arc = true
+     non_arc_files = 'WQVoiceToolComponents/amrwapper/*.{h,m}'
+     s.requires_arc = true
 
-   s.exclude_files = non_arc_files
-   s.subspec 'WavAmrHelp' do |sna|
-   sna.requires_arc = false
-   sna.source_files = non_arc_files
-   sna.vendored_libraries = "WQVoiceToolComponents/amrwapper/libopencore-amrnb.a","WQVoiceToolComponents/amrwapper/libopencore-amrwb.a"
-   end
+     s.exclude_files = non_arc_files
+     s.subspec 'WavAmrHelp' do |sna|
+     sna.requires_arc = false
+     sna.source_files = non_arc_files
+     sna.vendored_libraries = "WQVoiceToolComponents/amrwapper/libopencore-amrnb.a","WQVoiceToolComponents/amrwapper/libopencore-amrwb.a"
+     end
 
+     s.subspec 'lame' do |sna|
+     sna.source_files = 'WQVoiceToolComponents/lame/lame.h'
+     sna.vendored_libraries = "WQVoiceToolComponents/lame/libmp3lame.a"
+     end
 
     s.subspec 'VoiceTool' do |ss|
       ss.dependency 'WQVoiceToolComponents/WavAmrHelp'
+      ss.dependency 'WQVoiceToolComponents/lame'
       ss.source_files = 'WQVoiceToolComponents/WQVoiceManager/*.{h,m}'
     end
-
 
 end

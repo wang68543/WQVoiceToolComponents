@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D3A03D81F67B53800F22ABB /* libmp3lame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D3A03D71F67B53800F22ABB /* libmp3lame.a */; };
 		DE657C8A1ED67C0C000B7433 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C891ED67C0C000B7433 /* main.m */; };
 		DE657C8D1ED67C0C000B7433 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8C1ED67C0C000B7433 /* AppDelegate.m */; };
 		DE657C901ED67C0C000B7433 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8F1ED67C0C000B7433 /* ViewController.m */; };
@@ -25,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2D3A03D61F67B53800F22ABB /* lame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lame.h; sourceTree = "<group>"; };
+		2D3A03D71F67B53800F22ABB /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmp3lame.a; sourceTree = "<group>"; };
 		DE657C851ED67C0C000B7433 /* WQVoiceToolDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WQVoiceToolDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE657C891ED67C0C000B7433 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE657C8B1ED67C0C000B7433 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -62,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D3A03D81F67B53800F22ABB /* libmp3lame.a in Frameworks */,
 				DEFF5BE21F444D7B00BB20D3 /* libopencore-amrwb.a in Frameworks */,
 				DEFF5BE11F444D7B00BB20D3 /* libopencore-amrnb.a in Frameworks */,
 			);
@@ -70,6 +74,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2D3A03D51F67B53800F22ABB /* lame */ = {
+			isa = PBXGroup;
+			children = (
+				2D3A03D61F67B53800F22ABB /* lame.h */,
+				2D3A03D71F67B53800F22ABB /* libmp3lame.a */,
+			);
+			path = lame;
+			sourceTree = "<group>";
+		};
 		DE657C7C1ED67C0C000B7433 = {
 			isa = PBXGroup;
 			children = (
@@ -118,6 +131,7 @@
 			children = (
 				DE657DDF1ED6967F000B7433 /* WQVoiceManager */,
 				DE657DC31ED6873D000B7433 /* amrwapper */,
+				2D3A03D51F67B53800F22ABB /* lame */,
 			);
 			path = WQVoiceToolComponents;
 			sourceTree = "<group>";
@@ -363,6 +377,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
+					"$(PROJECT_DIR)/WQVoiceToolComponents/lame",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GuardianEnterprise;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -381,6 +396,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/WQVoiceToolComponents/amrwapper",
+					"$(PROJECT_DIR)/WQVoiceToolComponents/lame",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = GuardianEnterprise;
 				PRODUCT_NAME = "$(TARGET_NAME)";

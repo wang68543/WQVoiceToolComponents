@@ -9,6 +9,8 @@
 #import "WQVoiceRecordManager.h"
 #import <AVFoundation/AVFoundation.h>
 #import "amrFileCodec.h"
+#import "lame.h"
+
 #import "WQVoicePlayManager.h"
 
 @interface WQVoiceRecordManager()
@@ -137,11 +139,15 @@
     }
     
 }
--(NSData *)getRecordData{
+//MARK: =========== 录音文件读取 ===========
+-(NSString *)voiceRecordPath{
     if(!_recordKey|| _recordKey.length <= 0 ){
-            return nil;
+        return nil;
     }
-    return [NSData dataWithContentsOfFile:[_voiceCache defaultCachePathForKey:_recordKey]];
+    return [_voiceCache defaultCachePathForKey:_recordKey];
+}
+-(NSData *)getRecordData{
+    return [NSData dataWithContentsOfFile:[self voiceRecordPath]];
 }
 -(void)setConvertRecordStyle:(WQRecordConvertStyle)style{
     _convertStyle = style;
@@ -154,26 +160,33 @@
     _metersBlock = [updateMeter copy];
 }
 
+//MARK: =========== 音频转换 ===========
 
+//提供几种基本的语音类型转换
 -(void)addConvertRecord:(WQRecordConvertStyle)style down:(WQConvertRecordFinshed)convertFinshed{
      __block NSData *convertData = nil;
-    NSData *data = [self getRecordData];
+   NSData *data = [self getRecordData];
     dispatch_block_t block = ^{
-        switch (style) {
-            case WQRecordConvertWavToAmr:
-                if(data){
-                   convertData = EncodeWAVEToAMR(data,1,16);
-                }else{
-                    convertData = nil;
+        if (data) {
+            switch (style) {
+                case WQRecordConvertWavToAmr:
+                {
+                    convertData = EncodeWAVEToAMR(data,1,16);
                 }
-                break;
-//            case WQRecordConvertBase64:
-//                
-//                break;
-            case WQRecordConvertNone:
-            default:
-                break;
+                    break;
+                case WQRecordConvertCafToMP3:
+                {
+                    NSString *mp3FilePath = [self cafToMP3:[self voiceRecordPath]];
+                    convertData = [NSData dataWithContentsOfFile:mp3FilePath];
+                }
+                    break;
+                case WQRecordConvertNone:
+                default:
+                    convertData = data;
+                    break;
+            }
         }
+    
     };
     NSOperation *operatio = [self addBlockOperation:block];
     [operatio setCompletionBlock:^{
@@ -181,6 +194,7 @@
     }];
 }
 
+//block回调自定义类型转换
 - (void)addConvertRecordOperation:(WQConvertRecord)convertOperation down:(WQConvertRecordFinshed)convertFinshed{
     NSData *data = [self getRecordData];
     if (!data){
@@ -291,4 +305,65 @@
     }
     NSLog(@"===录音工具销毁了");
 }
+
+//MARK: =========== 格式转换(mp3转换) ===========
+
+//转换为 mp3 格式的重要代码
+- (NSString *)cafToMP3:(NSString *)cafFilePath{
+    
+    //这里必须要使用本地路径 如果使用absoluteString 前面带带有file://  fopen打开失败
+//    NSString *cafFilePath = self.recorder.url.path;
+    NSString *mp3FilePath = [NSString stringWithFormat:@"%@.mp3",cafFilePath.stringByDeletingPathExtension];
+    
+    //开始转换
+    
+    int read, write;
+    //转换的源文件位置
+    FILE *pcm = fopen([cafFilePath cStringUsingEncoding:1], "rb");
+    //转换后保存的位置
+    FILE *mp3 = fopen([mp3FilePath cStringUsingEncoding:1], "wb");
+    
+    if (!mp3 || !pcm) {
+        return nil;
+    }
+    
+    const int PCM_SIZE = 8192;
+    const int MP3_SIZE = 8192;
+    short int pcm_buffer[PCM_SIZE*2];
+    unsigned char mp3_buffer[MP3_SIZE];
+    int sampleRate = [[_recordSettings objectForKey:AVSampleRateKey] intValue];
+    //创建这个工具类
+    lame_t lame = lame_init();
+    lame_set_in_samplerate(lame, sampleRate);
+    lame_set_VBR(lame, vbr_default);
+    lame_init_params(lame);
+   
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+     //doWhile 循环
+    do {
+        read = fread(pcm_buffer, 2*sizeof(short int), PCM_SIZE, pcm);
+        if (read == 0){
+            //这里面的代码会在最后调用 只会调用一次
+            write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
+            //NSLog(@"read0%d",write);
+        }
+        else{
+            //这个 write 是写入文件的长度 在此区域内会一直调用此内中的代码 一直再压缩 mp3文件的大小,直到不满足条件才退出
+            write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, MP3_SIZE);
+            
+            //写入文件  前面第一个参数是要写入的块 然后是写入数据的长度 声道 保存地址
+            fwrite(mp3_buffer, write, 1, mp3);
+            //NSLog(@"read%d",write);
+        }
+    } while (read != 0);
+#pragma clang diagnostic pop
+    lame_close(lame);
+    fclose(mp3);
+    fclose(pcm);
+    
+    return mp3FilePath;
+}
+
+
 @end

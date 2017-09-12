@@ -14,6 +14,7 @@
 typedef NS_ENUM(NSInteger ,WQRecordConvertStyle) {
     WQRecordConvertNone,
     WQRecordConvertWavToAmr,
+    WQRecordConvertCafToMP3,//caf格式转为mp3
 //    WQRecordConvertBase64,
 };
 
