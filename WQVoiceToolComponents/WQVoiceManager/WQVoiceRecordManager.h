@@ -14,6 +14,7 @@
 typedef NS_ENUM(NSInteger ,WQRecordConvertStyle) {
     WQRecordConvertNone,
     WQRecordConvertWavToAmr,
+    /** caf转mp3 在录制的时候必须为双声道不然转出来的声音效果很差*/
     WQRecordConvertCafToMP3,//caf格式转为mp3
 //    WQRecordConvertBase64,
 };
