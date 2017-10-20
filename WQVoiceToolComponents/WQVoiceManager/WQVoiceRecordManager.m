@@ -307,7 +307,26 @@
 }
 
 //MARK: =========== 格式转换(mp3转换) ===========
+/**
+ * mp3转码对应的效果较好的参数配置
+ *   NSDictionary *recordSetting = [[NSDictionary alloc] initWithObjectsAndKeys:
+     [NSNumber numberWithFloat: 15000],AVSampleRateKey, //采样率
+     [NSNumber numberWithInt: kAudioFormatLinearPCM],AVFormatIDKey,
+     [NSNumber numberWithInt: 2], AVNumberOfChannelsKey,//通道
+     [NSNumber numberWithInt: AVAudioQualityMedium],AVEncoderAudioQualityKey,//音频编码质量
+     nil];
+ 
+ *转码工具参数 
+     lame_t lame = lame_init();
+     lame_set_VBR(lame, vbr_default);
+     lame_set_num_channels(lame,2);//默认为2双通道
+     lame_set_in_samplerate(lame, 15000);//11025.0 采样率要一样的
+     lame_set_brate(lame,16);
+     lame_set_mode(lame,3);
+     lame_set_quality(lame,5); // 2=high 5 = medium 7=low 音质
+     lame_init_params(lame);
 
+ */
 //转换为 mp3 格式的重要代码
 - (NSString *)cafToMP3:(NSString *)cafFilePath{
     

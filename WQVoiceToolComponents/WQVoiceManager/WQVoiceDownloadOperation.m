@@ -217,13 +217,13 @@
         [strongTask suspend];
     }];
     
-    if ([self.downloadProgress respondsToSelector:@selector(setResumingHandler:)]) {
+ 
+    if (@available(iOS 9.0, *)) {
         [self.downloadProgress setResumingHandler:^{
             __typeof__(weakTask) strongTask = weakTask;
             [strongTask resume];
         }];
     }
-    
     [task addObserver:self
            forKeyPath:NSStringFromSelector(@selector(countOfBytesReceived))
               options:NSKeyValueObservingOptionNew
