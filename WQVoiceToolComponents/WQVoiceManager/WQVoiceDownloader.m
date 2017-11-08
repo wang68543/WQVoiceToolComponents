@@ -24,6 +24,8 @@ static NSString *const kCompletedCallbackKey = @"completed";
 // This queue is used to serialize the handling of the network responses of all the download operation in a single queue
 @property (strong, nonatomic) dispatch_queue_t barrierQueue;
 //@property (strong ,nonatomic) WQVoiceCache *voiceCache;
+
+@property (strong  ,nonatomic) WQVoiceConversionTool *conversionTool;
 @end
 @implementation WQVoiceDownloader
 
@@ -35,15 +37,24 @@ static NSString *const kCompletedCallbackKey = @"completed";
     });
     return _instance;
 }
+-(WQVoiceConversionTool *)conversionTool{
+    if (!_conversionTool) {
+        _conversionTool = [WQVoiceConversionTool manager];
+    }
+    return _conversionTool;
+}
+
 -(instancetype)initWithCache:(WQVoiceCache *)voiceCache{
     self = [super init];
     if (self) {
         _downloadQueue = [[NSOperationQueue alloc] init];
         _downloadQueue.maxConcurrentOperationCount = 5;
-        _convertStyle = WQConvertVoiceNone;
+//        _convertStyle = WQConvertVoiceNone;
         
         _downloadTimeout = 15.0;
         _voiceCache = voiceCache;
+        
+        _shouldCache = YES;
         
         _URLCallbacks = [NSMutableDictionary new];
         _barrierQueue = dispatch_queue_create("com.WQVoiceDownloadBarrierQueue", DISPATCH_QUEUE_CONCURRENT);
@@ -70,23 +81,20 @@ static NSString *const kCompletedCallbackKey = @"completed";
 //    WQVoiceDownloadOperation *operation = notification.object;
 //    [self.downloadQueue.operations removeObserver:<#(nonnull NSObject *)#> forKeyPath:<#(nonnull NSString *)#>];
 }
--(void)setConvertStyle:(WQConvertVoiceStyle)convertStyle{
-    _convertStyle = convertStyle;
-    if(convertStyle != WQConvertVoiceNone){
-      _convertVoiceOperation = nil;
-    }
-}
--(void)setConvertVoiceOperationBlock:(WQConvertVoiceBlock)convertOperation{
-    _convertVoiceOperation = convertOperation;
-}
+//-(void)setConvertStyle:(WQConvertVoiceStyle)convertStyle{
+//    _convertStyle = convertStyle;
+//    if(convertStyle != WQConvertVoiceNone){
+//      _convertVoiceOperation = nil;
+//    }
+//}
 - (void)setMaxConcurrentDownloads:(NSInteger)maxConcurrentDownloads{
     _downloadQueue.maxConcurrentOperationCount = maxConcurrentDownloads;
 }
 
--(void)downloadWithURL:(NSURL *)url progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceCacheCompleteBlock)compeletedBlock{
+-(void)downloadWithURL:(NSURL *)url progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceDownCompleteBlock)compeletedBlock{
     [self downloadWithURL:url options:WQVoiceDownloadCacheInData progress:progressBlock completed:compeletedBlock];
 }
--(void)downloadWithURL:(NSURL *)url options:(WQVoiceOptions)options progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceCacheCompleteBlock)compeletedBlock{
+-(void)downloadWithURL:(NSURL *)url options:(WQVoiceDwonloadOptions)options progress:(WQVoiceDownProgressBlock)progressBlock completed:(WQVoiceDownCompleteBlock)compeletedBlock{
     __block  WQVoiceDownloadOperation *operation;
     __weak __typeof(self)wself = self;
     [self addProgressCallback:progressBlock completedBlock:compeletedBlock forURL:url createCallback:^{
@@ -109,40 +117,67 @@ static NSString *const kCompletedCallbackKey = @"completed";
                 if (callback) callback(downloadProgress);
             });
             
-        } complete:^(NSData * _Nullable voiceData, NSString * _Nullable voicePath,  NSError * _Nullable error, BOOL finshed) {
+        } complete:^(id  _Nullable voiceMedia,NSURL *resourceURL, NSError * _Nullable error) {
             WQVoiceDownloader *sself = wself;
             if (!sself) return;
+            
+            
             __block NSDictionary *callbacksForURL;
             dispatch_barrier_sync(sself.barrierQueue, ^{
                 callbacksForURL = [sself.URLCallbacks[url] copy];
-                if (finshed) {
-                    [sself.URLCallbacks removeObjectForKey:url];
+                [sself.URLCallbacks removeObjectForKey:url];
+                
+            });
+            WQVoiceDownCompleteBlock callback = callbacksForURL[kCompletedCallbackKey];
+            if (sself.conversionOperation) {
+                NSData *convertData = sself.conversionOperation(voiceMedia);
+                [sself _cacheMedia:convertData resourceURL:resourceURL];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (callback) callback(convertData ,resourceURL, error);
+                });
+            }else  if (sself.convertStyle != WQConvertVoiceNone) {
+                NSString *targetPath ;
+                if (sself.shouldCache) {
+                    targetPath = [sself.voiceCache defaultCachePathForURL:resourceURL];
                 }
-            });
-            WQVoiceCacheCompleteBlock callback = callbacksForURL[kCompletedCallbackKey];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (callback) callback(voiceData,voicePath,WQVoiceCacheTypeNone ,url, error);
-            });
+                [sself.conversionTool voiceConversion:sself.convertStyle from:voiceMedia targetPath:targetPath compeletion:^(NSError *error,  id convertData) {
+                    if (callback) callback(convertData ,url, error);
+                }];
+            }else{
+                [sself _cacheMedia:voiceMedia resourceURL:resourceURL];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (callback) callback(voiceMedia ,url, error);
+                });
+            }
+            
         } cancelBlock:^{
             WQVoiceDownloader *sself = wself;
             if (!sself) return;
             dispatch_barrier_async(sself.barrierQueue, ^{
                 [sself.URLCallbacks removeObjectForKey:url];
             });
-        }];
-        operation.convertStyle = wself.convertStyle;
-        [operation setConvertVoiceOperationBlock:wself.convertVoiceOperation];
-        operation.voiceCache = wself.voiceCache;
+        } ];
         [wself.downloadQueue addOperation:operation];
     }];
+}
 
+- (void)_cacheMedia:(id)voiceMedia resourceURL:(NSURL *)resourceURL{
+    if (self.shouldCache && voiceMedia && resourceURL) {
+        NSString *targetKey = [self.voiceCache cacheKeyForURL:resourceURL];
+        
+        if ([voiceMedia isKindOfClass:[NSData class]]) {
+              [self.voiceCache storeVoice:voiceMedia forKey:targetKey];
+        }else{
+            [self.voiceCache moveVoice:voiceMedia forkey:targetKey];
+        }
+    }
 }
 //TODO: 相同的音频路径 就覆盖之前的回调block
-- (void)addProgressCallback:(WQVoiceDownProgressBlock)progressBlock completedBlock:(WQVoiceCacheCompleteBlock)completedBlock forURL:(NSURL *)url createCallback:(dispatch_block_t)createCallback {
+- (void)addProgressCallback:(WQVoiceDownProgressBlock)progressBlock completedBlock:(WQVoiceDownCompleteBlock)completedBlock forURL:(NSURL *)url createCallback:(dispatch_block_t)createCallback {
     // The URL will be used as the key to the callbacks dictionary so it cannot be nil. If it is nil immediately call the completed block with no image or data.
     if (url == nil) {
         if (completedBlock != nil) {
-            completedBlock(nil,nil, WQVoiceCacheTypeNone, nil, [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey:@"path is empty"}]);
+            completedBlock( nil,nil, [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey:@"path is empty"}]);
         }
         return;
     }

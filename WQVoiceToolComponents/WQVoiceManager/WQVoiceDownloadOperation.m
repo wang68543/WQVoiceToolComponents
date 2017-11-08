@@ -9,16 +9,16 @@
 #import "WQVoiceDownloadOperation.h"
 #import "amrFileCodec.h"
 @interface WQVoiceDownloadOperation(){
-    NSString *_cacheKey;
+    NSString *_outputPath;
 }
 
 
 /** 操作选项 */
-@property (assign ,nonatomic,readonly) WQVoiceOptions options;
+@property (assign ,nonatomic,readonly) WQVoiceDwonloadOptions options;
 
 
-@property (copy ,nonatomic) WQVoiceCacheCompleteBlock completeBlock;
-@property (copy ,nonatomic) WQConvertVoiceBlock convertVoiceBlock;
+//@property (copy ,nonatomic) WQVoiceCacheCompleteBlock completeBlock;
+//@property (copy ,nonatomic) WQConvertVoiceBlock convertVoiceBlock;
 @property (copy ,nonatomic) WQVoiceDownProgressBlock progressBlock;
 @property (copy ,nonatomic) WQVoiceDownloadCompleteBlock downloadComplete;
 @property (copy ,nonatomic) dispatch_block_t cancelBlock;
@@ -52,10 +52,7 @@
 - (BOOL)isAsynchronous {
     return YES;
 }
--(void)setConvertVoiceOperationBlock:(WQConvertVoiceBlock)convertOperation{
-    self.convertVoiceBlock = convertOperation;
-}
--(instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(WQVoiceOptions)options progress:(WQVoiceDownProgressBlock)progressBlock complete:(WQVoiceDownloadCompleteBlock)completeBlock cancelBlock:(dispatch_block_t)cancelBlock{
+-(instancetype)initWithRequest:(NSURLRequest *)request inSession:(NSURLSession *)session options:(WQVoiceDwonloadOptions)options progress:(WQVoiceDownProgressBlock)progressBlock complete:(WQVoiceDownloadCompleteBlock)completeBlock cancelBlock:(dispatch_block_t)cancelBlock{
     if(self = [super init]){
         _request = [request copy];
         _unownedSession = session;
@@ -63,7 +60,7 @@
         _downloadComplete = [completeBlock copy];
         
         _cancelBlock = [cancelBlock copy];
-        
+        _url = [request.URL copy];
         _options = options;
         /** fractionCompleted 完成的比例(0~1小数形式);
          * localizedDescription 完成百分比(百分比形式);
@@ -79,12 +76,12 @@
     return self;
 }
 
--(WQVoiceCache *)voiceCache{
-    if(!_voiceCache){
-        _voiceCache = [WQVoiceCache sharedCache];
-    }
-    return _voiceCache;
-}
+//-(WQVoiceCache *)voiceCache{
+//    if(!_voiceCache){
+//        _voiceCache = [WQVoiceCache sharedCache];
+//    }
+//    return _voiceCache;
+//}
 - (void)done{
     self.finished = YES;
     self.executing = NO;
@@ -93,7 +90,7 @@
 - (void)reset{
 //    [self cleanUpProgressForTask:_dataTask];
     self.cancelBlock = nil;
-    self.convertVoiceBlock = nil;
+//    self.convertVoiceBlock = nil;
     _downloadProgress = nil;
 
     self.voiceData = nil;
@@ -103,9 +100,9 @@
         }
         self.outputStream = nil;
     }
-    self.completeBlock = nil;
-    _cacheKey = nil;
-    _voiceCache = nil;
+//    self.completeBlock = nil;
+    _outputPath = nil;
+//    _voiceCache = nil;
 }
 
 -(void)start{
@@ -123,15 +120,8 @@
     }
     [self.dataTask resume];
     
-    if (self.dataTask) {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//            [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];
-//        });
-    }
-    else {
-        if (self.downloadComplete) {
-            self.downloadComplete(nil, nil , [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}], YES);
-        }
+    if (!self.dataTask && self.downloadComplete) {
+        self.downloadComplete(nil,self.url, [NSError errorWithDomain:NSURLErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Connection can't be initialized"}]);
     }
     
 }
@@ -172,34 +162,7 @@
     
     [self reset];
 }
-#pragma mark -- 音频转换 
--(NSData *)convertVoiceOperationWithOrignalData:(NSData *)originalData{
-    NSData *convertData = nil;
-    if(originalData){
-        if(_convertVoiceBlock){
-            //TODO: 同步Block意思是block中代码执行完了就返回 而不需要等待其它的操作完成
-            //同步block 顺序执行
-            convertData =  _convertVoiceBlock(originalData);
-        }else{
-            switch (_convertStyle) {
-                    
-                case WQConvertBase64ToWav:
-                    convertData = [[NSData alloc] initWithBase64EncodedData:originalData options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                    break;
-                case WQConvertBase64AmrToWav:
-                    convertData = [[NSData alloc] initWithBase64EncodedData:originalData options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                case WQConvertVoiceAmrToWav:
-                    convertData = DecodeAMRToWAVE(originalData);
-                    break;
-                case WQConvertVoiceNone:
-                default:
-                    convertData = originalData;
-                    break;
-            }
-        }
-    }
-    return convertData;
-}
+
 #pragma mark - NSProgress Tracking
 
 - (void)setupProgressForTask:(NSURLSessionTask *)task {
@@ -314,10 +277,10 @@
     if (![response respondsToSelector:@selector(statusCode)] || ([((NSHTTPURLResponse *)response) statusCode] < 400 && [((NSHTTPURLResponse *)response) statusCode] != 304)) {
         NSInteger expected = response.expectedContentLength > 0 ? (NSInteger)response.expectedContentLength : 0;
        
-        if(self.options&WQVoiceDownloadCacheInStream){
-            _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
+        if(self.options == WQVoiceDownloadCacheInStream){
+            _outputPath  = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"voiceMedia_%lf",CFAbsoluteTimeGetCurrent()]];
             //开启输出流
-           self.outputStream = [NSOutputStream outputStreamToFileAtPath:[[WQVoiceCache voiceCacheTempPath] stringByAppendingPathComponent:_cacheKey] append:YES];
+           self.outputStream = [NSOutputStream outputStreamToFileAtPath:_outputPath append:YES];
              [self.outputStream open];
         }else{
             self.voiceData = [[NSMutableData alloc] initWithCapacity:expected];
@@ -335,7 +298,7 @@
         }
    
         if (self.downloadComplete) {
-            self.downloadComplete(nil, nil , [NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:nil], YES);
+            self.downloadComplete(nil,self.url,[NSError errorWithDomain:NSURLErrorDomain code:[((NSHTTPURLResponse *)response) statusCode] userInfo:@{NSLocalizedDescriptionKey:@"failed to connect"}]);
         }
         [self done];
     }
@@ -353,6 +316,15 @@
     // 进度 = 当前下载的大小 / 总大小
 //    NSLog(@"===%@",self.downloadProgress);
 //    _tmpFileSize += data.length;
+    
+    @synchronized (self) {
+        if (self.isCancelled) {
+            self.finished = YES;
+            [self reset];
+            return;
+        }
+    }
+    
     if(self.outputStream){
       [self.outputStream write:data.bytes maxLength:data.length];
     }else{
@@ -362,87 +334,49 @@
 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
 {
-    
-    //    [self.outputStream close];
-    //    self.outputStream = nil;
-    //
-    //    if (error == nil) {
-    //        NSLog(@"下载完毕, 成功");
-    //        // 移动数据  temp - > cache
-    //        [XMGDownLoaderFileTool moveFile:self.tmpFilePath toPath:self.cacheFilePath];
-    //        self.state = XMGDownLoaderStateSuccess;
-    //        if (self.downLoadSuccess) {
-    //            self.downLoadSuccess(self.cacheFilePath);
-    //        }
-    //    }else {
-    //        NSLog(@"有错误---");
-    //        //        error.code
-    //        //        error.localizedDescription;
-    //        self.state = XMGDownLoaderStateFailed;
-    //        if (self.downLoadError) {
-    //            self.downLoadError();
-    //        }
-    //    }
-    
+
     
     @synchronized(self) {
         self.thread = nil;
         [self cleanUpProgressForTask:self.dataTask];
         _dataTask = nil;
     }
-    if(self.downloadComplete){
-        if(error){
-           self.downloadComplete(nil,nil, error, YES);
+
+    if(error){
+        self.downloadComplete?self.downloadComplete(nil,self.url, error):nil;
+    }else{
+        if (self.voiceData) {
+            self.downloadComplete?self.downloadComplete([self.voiceData copy],self.url, nil):nil;
+        } else if(self.outputStream){
+          [self.outputStream close];
+            self.downloadComplete?self.downloadComplete([_outputPath copy],self.url,nil):nil;
         }else{
-            if (self.voiceData) {
-                @synchronized (self) {
-                    if (self.isCancelled) {
-                        self.finished = YES;
-                        [self reset];
-                        return;
-                    }
-                }
-                    
-                NSData *convertData = [self convertVoiceOperationWithOrignalData:self.voiceData];
-                if(!convertData){
-                    self.downloadComplete(nil,nil, [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Voice Convert failed"}], YES);
-                }else{
-                   NSString *voicePath = [self storeVoice];
-                    self.downloadComplete(convertData, voicePath,nil, YES);
-                }
-                self.voiceData = nil;
-            } else if(self.outputStream){
-              [self.outputStream close];
-               NSString *voicePath = [self storeVoice];
-                self.outputStream = nil;
-                self.downloadComplete(nil, voicePath,nil, YES);
-            }else{
-                 self.downloadComplete(nil,nil, [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Voice data is nil"}], YES);
-            }
+            self.downloadComplete?self.downloadComplete(nil, self.url, [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"Voice data is nil"}]):nil;
         }
     }
+    
     self.completionBlock = nil;
     
     [self done];
 
 }
-//MARK: 缓存文件(返回存储路径)
-- (NSString *)storeVoice{
-    NSString *voicePath;
-    if((self.options & WQVoiceDownloadCacheInStream) || (self.options & WQVoiceDownloadCacheInData)){
-        if(!_cacheKey){
-           _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
-        }
-        voicePath = [self.voiceCache defaultCachePathForKey:_cacheKey];
-        if(self.outputStream){
-            [WQVoiceCache moveFile:[[WQVoiceCache voiceCacheTempPath] stringByAppendingPathComponent:_cacheKey] toPath:voicePath];
-        }else{
-             [self.voiceCache storeVoice:self.voiceData forKey:_cacheKey];
-        }
-    }
-    return voicePath;
-   
-}
+////MARK: 缓存文件(返回存储路径)
+//- (NSString *)storeVoice{
+//    NSString *voicePath;
+//    if((self.options & WQVoiceDownloadCacheInStream) || (self.options & WQVoiceDownloadCacheInData)){
+//        if(!_cacheKey){
+//           _cacheKey = [self.voiceCache cacheKeyForURL:[self.request.URL absoluteString]];
+//        }
+//        voicePath = [self.voiceCache defaultCachePathForKey:_cacheKey];
+//        if(self.outputStream){
+//            [WQVoiceCache moveFile:[[WQVoiceCache temVoiceCacheDirectory] stringByAppendingPathComponent:_cacheKey] toPath:voicePath];
+//        }else{
+//             [self.voiceCache storeVoice:self.voiceData forKey:_cacheKey];
+//        }
+//    }
+//    return voicePath;
+//
+//}
 
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask

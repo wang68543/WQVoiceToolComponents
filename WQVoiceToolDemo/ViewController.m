@@ -16,11 +16,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[WQVoicePlayManager manager] play:@"http://down.qingkan520.com/5/5557.txt" playBegin:^(NSError *error, NSURL *url) {
-        NSLog(@"%@",url);
-    } playFinsh:^(NSError *error, NSURL *url, BOOL finshed) {
-        NSLog(@"===%@",url);
-    }];
+//    [[WQVoicePlayManager manager] play:@"http://down.qingkan520.com/5/5557.txt" playBegin:^(NSError *error, NSURL *url) {
+//        NSLog(@"%@",url);
+//    } playFinsh:^(NSError *error, NSURL *url, BOOL finshed) {
+//        NSLog(@"===%@",url);
+//    }];
     // Do any additional setup after loading the view, typically from a nib.
 //    [[WQVoicePlayManager manager] play:@"http://down.qingkan520.com/5/5557.txt" playFinsh:^(NSError *error, NSURL *url, BOOL finshed) {
 //        

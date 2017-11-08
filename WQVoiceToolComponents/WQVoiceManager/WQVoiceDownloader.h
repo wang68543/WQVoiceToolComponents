@@ -8,40 +8,25 @@
 
 #import <Foundation/Foundation.h>
 #import "WQVoiceCache.h"
+#import "WQVoiceConversionTool.h"
 
-typedef NS_ENUM(NSInteger,WQConvertVoiceStyle) {
-    WQConvertVoiceNone,
-    WQConvertVoiceAmrToWav,
-    WQConvertBase64ToWav,
-    WQConvertBase64AmrToWav,
-};
 
 // 默认都会存储到磁盘上
-typedef NS_OPTIONS (NSUInteger ,WQVoiceOptions){
-    WQVoiceCacheMemoryOnly = 1 << 0,//只加载到内存中
-    WQVoiceRefreshCached  = 1 << 1,//刷新缓存
-    WQVoiceDownloadCacheInStream  = 1 << 2,//以流的形式存储文件不加载到内存
-    WQVoiceDownloadCacheInData  = 1 << 3, //加载到内存里面 以Data形式写入到文件
-    WQVoiceDownloadContinueInBackground  = 1 << 4,//后台继续下载
+typedef NS_ENUM (NSUInteger ,WQVoiceDwonloadOptions){
+//    WQVoiceCacheMemoryOnly = 1 << 0,//只加载到内存中
+//    WQVoiceRefreshCached  = 1 << 1,//刷新缓存
+//    WQVoiceDownloadCacheInStream  = 1 << 2,//以流的形式存储文件不加载到内存
+//    WQVoiceDownloadCacheInData  = 1 << 3, //加载到内存里面 以Data形式写入到文件
+//    WQVoiceDownloadContinueInBackground  = 1 << 4,//后台继续下载
+    WQVoiceDownloadCacheInData   ,//默认
+    WQVoiceDownloadCacheInStream  ,
+    WQVoiceDownloadContinueInBackground  ,
+    
     //    WQVoicePlayContinueInBackground,//后台继续播放
 } ;
 
-
-/**
- 获取文件完成回调
-
- @param voiceData WQVoiceCachePolicyToDisk:此项没值 (就是当接收形式是以data形式接收的 此项才有值(此项不刻意去磁盘里面读))
- @param downURL 源文件路径
- */
-typedef void (^WQVoiceCacheCompleteBlock)(NSData *voiceData,NSString *cachePath,WQVoiceCacheType cacheType,NSURL *downURL ,NSError *error);
+typedef void (^WQVoiceDownCompleteBlock) (id voiceMedia , NSURL *downURL , NSError *error);
 typedef void(^WQVoiceDownProgressBlock)(NSProgress *downloadProgress);
-/**
- 音频格式转换(可能下载的格式iOS无法播放所以需要转换)
- 
- @param downData 下载下来的原始数据
- @return 转换后的数据
- */
-typedef NSData * (^WQConvertVoiceBlock)(NSData *downData);
 
 @interface WQVoiceDownloader : NSObject
 + (instancetype)sharedVoiceDownloader;
@@ -49,14 +34,19 @@ typedef NSData * (^WQConvertVoiceBlock)(NSData *downData);
 @property (strong ,nonatomic, readonly) WQVoiceCache *voiceCache;
 
 - (instancetype)initWithCache:(WQVoiceCache *)voiceCache;
-
+/** 下载响应超时时间 默认15s */
 @property (assign, nonatomic) NSTimeInterval downloadTimeout;
 
+/** 最大并发下载数量 默认5 */
 @property (assign ,nonatomic) NSInteger maxConcurrentDownloads;
+/** 是否需要缓存 默认YES */
+@property (assign  ,nonatomic) BOOL shouldCache;
 
+//MARK: =========== 下载之后的音频格式转换 ===========
+/** 固定几种类型的语音转换 */
 @property (assign ,nonatomic) WQConvertVoiceStyle convertStyle;
-/**下载完成之后转换语音再播放*/
-- (void)setConvertVoiceOperationBlock:(WQConvertVoiceBlock)convertOperation;
+/** 自定义音频格式转换 */
+@property (copy    ,nonatomic) WQConvertVoiceBlock conversionOperation;
 
 /**
  下载过程中
@@ -67,12 +57,12 @@ typedef NSData * (^WQConvertVoiceBlock)(NSData *downData);
  */
 - (void)downloadWithURL:(NSURL *)url
                progress:(WQVoiceDownProgressBlock)progressBlock
-              completed:(WQVoiceCacheCompleteBlock)compeletedBlock;
+              completed:(WQVoiceDownCompleteBlock)compeletedBlock;
 
 - (void)downloadWithURL:(NSURL *)url
-                options:(WQVoiceOptions)options
+                options:(WQVoiceDwonloadOptions)options
                progress:(WQVoiceDownProgressBlock)progressBlock
-              completed:(WQVoiceCacheCompleteBlock)compeletedBlock;
+              completed:(WQVoiceDownCompleteBlock)compeletedBlock;
 
 
 //TODO: 待实现

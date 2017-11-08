@@ -20,8 +20,6 @@
 
 @property (copy ,nonatomic) NSURL *currentURL;
 
-/** 旧的播放模型 */
-//@property (strong ,nonatomic) id<WQMediaPlayStateProtocol> oldPlayMediaModel;
 
 @end
 @implementation WQVoicePlayManager
@@ -35,16 +33,21 @@ static WQVoicePlayManager *_instance;
     });
     return _instance;
 }
-- (void)appDidEnterBackground{
-    [self stopCurrentPlay];
-}
+
 -(instancetype)initWithCache:(WQVoiceCache *)cache downloader:(WQVoiceDownloader *)downloader{
     if(self = [super init]){
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
         _voiceCache = cache;
         _downloader = downloader;
+        _allowPlayInBackground = YES;
     }
     return self;
+}
+//MARK: =========== app进入后台 ===========
+- (void)appDidEnterBackground{
+    if (!self.allowPlayInBackground) {
+       [self stopCurrentPlay];
+    }
 }
 -(BOOL)isPlaying{
     return self.player && self.player.isPlaying;
@@ -54,18 +57,22 @@ static WQVoicePlayManager *_instance;
         [self.player stop];
         _playFinshed? _playFinshed(nil,_currentURL,NO):nil;
     }
-    [self playFinshReset:NO];
-//    [self stopCurrentPlayWithModel:self.currentPlayMediaModel];
+    [self _playFinshReset:NO];
 }
 
 #pragma mark -- 私有方法
 
--(void)playWithData:(NSData *)data{
+-(void)_playWithVoiceMedia:(id)voiceMedia{
      //当存在回调block的时候 下载完了监测下block是否存在 如果还存在就播放否则就不播放
     
      NSError *error;
     do {
-        self.player = [[AVAudioPlayer alloc] initWithData:data error:&error];
+        if ([voiceMedia isKindOfClass:[NSData class]]) {
+             self.player = [[AVAudioPlayer alloc] initWithData:voiceMedia error:&error];
+        }else{
+             self.player = [[AVAudioPlayer alloc] initWithData:[NSData dataWithContentsOfFile:voiceMedia] error:&error];
+        }
+       
         if(error) break;
         AVAudioSession *audioSession = [AVAudioSession sharedInstance];
         [audioSession setCategory:AVAudioSessionCategoryPlayback error:&error];
@@ -84,11 +91,8 @@ static WQVoicePlayManager *_instance;
          _playBegin ? _playBegin(error,_currentURL):nil;
         
         //此处结束了 不回调finshBlock
-        [self playFinshReset:NO];
+        [self _playFinshReset:NO];
     }else{
-//        if(self.currentPlayMediaModel){
-//            [self.currentPlayMediaModel setMediaPlaying:YES];
-//        }
        self.player.delegate = self;
       _playBegin ? _playBegin(nil,_currentURL):nil;
     }
@@ -100,20 +104,11 @@ static WQVoicePlayManager *_instance;
         [self.player stop];
         _playFinshed? _playFinshed([NSError errorWithDomain:WQVoiceErrorDomain code:-1 userInfo:@{NSLocalizedDescriptionKey:@"interrupt error"}],_currentURL,NO):nil;
     }
-    [self playFinshReset:NO];
+    [self _playFinshReset:NO];
 }
-//-(void)stopCurrentPlayWithModel:(id<WQMediaPlayStateProtocol>)model{
-//    if(self.isPlaying){
-//        [self.player stop];
-//    }
-//    if(model){
-//        [model setMediaPlaying:NO];
-//    }
-//    //中途被打断
-//    [self playFinshReset:NO];
-//}
 
--(void)playFinshReset:(BOOL)finshed{
+
+-(void)_playFinshReset:(BOOL)finshed{
     _playBegin = nil;
     _playFinshed = nil;
     _player = nil;
@@ -122,53 +117,41 @@ static WQVoicePlayManager *_instance;
 }
 
 #pragma mark -- 私有方法End
-
-//-(void)playMedia:(id<WQMediaPlayStateProtocol>)mediaModel playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-//    _currentPlayMediaModel = mediaModel;
-//    [self play:[mediaModel mediaPath] playBegin:playBeginBlock playFinsh:playFinshedBlock];
-//}
--(void)play:(NSString *)voicePath playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
-    [self play:voicePath options:WQVoiceDownloadCacheInData downProgress:NULL downComplete:NULL playBegin:playBeginBlock playFinsh:playFinshedBlock];
+-(void)play:(NSString *)voicePath downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+    [self play:voicePath downProgress:NULL downComplete:completeBlock playBegin:playBeginBlock playFinsh:playFinshedBlock];
 }
 
 //TODO: 语音播放 1.停止当前正在播放的 2.下载或缓存中取音频文件 3.取到文件当存在block的时候开始播放 没取到文件的时候直接调下载完成block然后调播放完成的block 4.正常播放回调播放完成block
--(void)play:(NSString *)voicePath options:(WQVoiceOptions)options downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
+-(void)play:(NSString *)voicePath downProgress:(WQVoiceDownProgressBlock)progressBlock downComplete:(WQVoiceCacheCompleteBlock)completeBlock playBegin:(WQVoicePlayBeginBlock)playBeginBlock playFinsh:(WQVoicePlayFinshBlock)playFinshedBlock{
     [self interruptPlaying];
     
-    NSString *key = [_voiceCache cacheKeyForURL:voicePath];
-    //不存在key的时候就
-    if(key.length <= 0){
-        playFinshedBlock?playFinshedBlock([NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"音频路径不存在"}],nil,YES):nil;
+    NSURL *voiceURL = [NSURL URLWithString:voicePath];
+
+    if(!voiceURL){
+        NSError *error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey : @"音频路径不存在"}];
+         completeBlock?completeBlock(nil,WQVoiceCacheTypeNone,voiceURL,error):nil;
+        return;
     }
     
     __weak typeof(self) weakSelf = self;
-    
-   
     self.playBegin = playBeginBlock;
     self.playFinshed  = playFinshedBlock;
-    
-    
-    __weak  NSURL *voiceURL = [NSURL URLWithString:voicePath];
-     self.currentURL = voiceURL;
-    [self.voiceCache queryVoiceCacheForKey:key done:^(NSString *voicePath, WQVoiceCacheType cacheType) {
-        NSData *voiceData = [self audioDataWithPath:voicePath];
-        if(voiceData){
-            //读取文件完成回调
-            completeBlock?completeBlock(voiceData,voicePath,cacheType,voiceURL,nil):nil;
-            [weakSelf playWithData:voiceData];
+
+    self.currentURL = voiceURL;
+    [self.voiceCache queryVoiceCacheForURL:voiceURL done:^(NSString *cachePath, WQVoiceCacheType cacheType) {
+        if (cachePath) {
+            completeBlock?completeBlock(cachePath,cacheType,voiceURL,nil):nil;
+            [weakSelf _playWithVoiceMedia:cachePath];
         }else{
-            [weakSelf.downloader downloadWithURL:voiceURL progress:progressBlock completed:^(NSData *voiceData ,NSString *cachePath, WQVoiceCacheType cacheType, NSURL *url, NSError *error) {
-                if(voiceData){
-                    //下载完成
-                    completeBlock?completeBlock(voiceData,cachePath,cacheType,url,nil):nil;
-                   [weakSelf playWithData:voiceData];
+            [weakSelf.downloader downloadWithURL:voiceURL progress:progressBlock completed:^(id voiceMedia, NSURL *downURL, NSError *error) {
+                if (voiceMedia) {
+                    completeBlock?completeBlock(voiceMedia,WQVoiceCacheTypeNone,downURL,error):nil;
+                    [weakSelf _playWithVoiceMedia:voiceMedia];
                 }else{
-                    
                     if(!error){
                         error = [NSError errorWithDomain:WQVoiceErrorDomain code:0 userInfo:@{NSLocalizedDescriptionKey:@"radio download failed!"}];
                     }
-                    //下载完成
-                    completeBlock?completeBlock(voiceData,cachePath,cacheType,url,error):nil;
+                    completeBlock?completeBlock(voiceMedia,WQVoiceCacheTypeNone,downURL,error):nil;
                     weakSelf.playBegin = nil;
                     weakSelf.playFinshed = nil;
                     weakSelf.currentURL = nil;
@@ -176,22 +159,18 @@ static WQVoicePlayManager *_instance;
             }];
         }
     }];
+ 
 }
 #pragma mark -- 私有方法
-#pragma mark -- -根据路劲读取语音
-- (NSData *)audioDataWithPath:(NSString *)audioPath{
-    if(!audioPath || audioPath.length <= 0) return nil;
-   return  [NSData dataWithContentsOfFile:audioPath];
-}
 #pragma mark -- AVAudioPlayerDelegate
 -(void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag{
     _playFinshed ? _playFinshed(nil,_currentURL,flag):nil;
-    [self playFinshReset:YES];
+    [self _playFinshReset:YES];
 }
 -(void)audioPlayerDecodeErrorDidOccur:(AVAudioPlayer *)player error:(NSError *)error{
 
     _playFinshed ? _playFinshed(error,_currentURL,YES):nil;
-     [self playFinshReset:YES];
+     [self _playFinshReset:YES];
 }
 
 - (void)dealloc{
@@ -200,5 +179,6 @@ static WQVoicePlayManager *_instance;
     }
     _playBegin = nil;
     _playFinshed = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end

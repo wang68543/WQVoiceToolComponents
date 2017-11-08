@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2D3A03D81F67B53800F22ABB /* libmp3lame.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D3A03D71F67B53800F22ABB /* libmp3lame.a */; };
+		2DFFF6D61F9DC9EE00804BD4 /* WQVoiceConversionTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2DFFF6D51F9DC9EE00804BD4 /* WQVoiceConversionTool.m */; };
 		DE657C8A1ED67C0C000B7433 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C891ED67C0C000B7433 /* main.m */; };
 		DE657C8D1ED67C0C000B7433 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8C1ED67C0C000B7433 /* AppDelegate.m */; };
 		DE657C901ED67C0C000B7433 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657C8F1ED67C0C000B7433 /* ViewController.m */; };
@@ -28,6 +29,8 @@
 /* Begin PBXFileReference section */
 		2D3A03D61F67B53800F22ABB /* lame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lame.h; sourceTree = "<group>"; };
 		2D3A03D71F67B53800F22ABB /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmp3lame.a; sourceTree = "<group>"; };
+		2DFFF6D41F9DC9EE00804BD4 /* WQVoiceConversionTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WQVoiceConversionTool.h; sourceTree = "<group>"; };
+		2DFFF6D51F9DC9EE00804BD4 /* WQVoiceConversionTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WQVoiceConversionTool.m; sourceTree = "<group>"; };
 		DE657C851ED67C0C000B7433 /* WQVoiceToolDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WQVoiceToolDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE657C891ED67C0C000B7433 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DE657C8B1ED67C0C000B7433 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -164,6 +167,8 @@
 				DE657DE71ED6967F000B7433 /* WQVoicePlayManager.m */,
 				DE657DE81ED6967F000B7433 /* WQVoiceRecordManager.h */,
 				DE657DE91ED6967F000B7433 /* WQVoiceRecordManager.m */,
+				2DFFF6D41F9DC9EE00804BD4 /* WQVoiceConversionTool.h */,
+				2DFFF6D51F9DC9EE00804BD4 /* WQVoiceConversionTool.m */,
 			);
 			path = WQVoiceManager;
 			sourceTree = "<group>";
@@ -194,7 +199,7 @@
 		DE657C7D1ED67C0C000B7433 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = WQMapKit;
 				TargetAttributes = {
 					DE657C841ED67C0C000B7433 = {
@@ -249,6 +254,7 @@
 				DE657DEA1ED6967F000B7433 /* WQVoiceCache.m in Sources */,
 				DE657DEE1ED6967F000B7433 /* WQVoiceRecordManager.m in Sources */,
 				DE657C8A1ED67C0C000B7433 /* main.m in Sources */,
+				2DFFF6D61F9DC9EE00804BD4 /* WQVoiceConversionTool.m in Sources */,
 				DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,7 +291,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -293,7 +301,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -333,7 +345,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -341,7 +355,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
