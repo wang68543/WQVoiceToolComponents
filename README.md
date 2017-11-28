@@ -1,5 +1,5 @@
 # WQVoiceToolComponents
 功能组件
 ### 支持CocoaPods'
-    pod 'WQVoiceToolComponents',~>'0.0.5'
+    pod 'WQVoiceToolComponents',~>'0.1.0'
 ---
