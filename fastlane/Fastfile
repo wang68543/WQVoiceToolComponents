@@ -1,0 +1,56 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+
+# 使用 1. fastlane lanes
+#     2. fastlane FastLaneLib tag:0.1.0 target:WQBasicModules # `FastLaneLib` 是自己的定义的名称 
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+# app_identifier "[[APP_IDENTIFIER]]" # The bundle identifier of your app
+default_platform(:ios)
+# fastlane [lane] key:value key2:value2
+platform :ios do
+  desc "自动Pod更新库"
+  lane :WQVoiceToolComponents do |options|
+
+  	tagName = options[:tag] #这个参数是跟在BasicModulesLib 后面的  
+  	# targetName = options[:target]
+    targetName = "WQVoiceToolComponents"
+
+    # add actions here: https://docs.fastlane.tools/actions
+   #1. pod install 
+   		# cocoapods(clean: true,podfile: "./Podfile")
+
+   if git_tag_exists(tag: tagName)
+    UI.message("版本号已经存在 #{tagName} ,即将删除")
+    remove_tag(tag: tagName)
+    end
+   #2. git add .
+   		git_add(path: ".")
+   		git_commit(path: ".", message: "更新版本")
+   		push_to_git_remote # simple version. pushes "master" branch to "origin" remote
+
+   
+    #3. git tag 
+    		# Alternatively, you can specify your own tag. Note that if you do specify a tag, all other arguments are ignored.
+	 # 这里如果 出错了 需要删除 之前提交的tag  # 1. git tag -d 0.1.0   2. git push origin:0.1.0
+	 add_git_tag(tag: tagName)
+	 push_git_tags 
+
+   spec = "./#{targetName}.podspec"
+   UI.message("路径#{spec}")
+    #4. pod spec lint 
+  if pod_lib_lint(allow_warnings: true,verbose: false) #,sources:[spec]
+     UI.message("验证已经通过正在上传")
+     pod_push(path: "#{targetName}.podspec",allow_warnings: true)
+    else
+    UI.message("验证失败") 
+   end
+   
+   
+  end
+end
