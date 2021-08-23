@@ -16,7 +16,7 @@
 		DE657C961ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = DE657C941ED67C0C000B7433 /* WQVoiceToolDemo.xcdatamodeld */; };
 		DE657C981ED67C0C000B7433 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DE657C971ED67C0C000B7433 /* Assets.xcassets */; };
 		DE657C9B1ED67C0C000B7433 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DE657C991ED67C0C000B7433 /* LaunchScreen.storyboard */; };
-		DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DC51ED6873D000B7433 /* amrFileCodec.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		DE657DD61ED6873D000B7433 /* WQAmrFileCodec.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DC51ED6873D000B7433 /* WQAmrFileCodec.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		DE657DEA1ED6967F000B7433 /* WQVoiceCache.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE11ED6967F000B7433 /* WQVoiceCache.m */; };
 		DE657DEB1ED6967F000B7433 /* WQVoiceDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE31ED6967F000B7433 /* WQVoiceDownloader.m */; };
 		DE657DEC1ED6967F000B7433 /* WQVoiceDownloadOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = DE657DE51ED6967F000B7433 /* WQVoiceDownloadOperation.m */; };
@@ -42,8 +42,8 @@
 		DE657C971ED67C0C000B7433 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DE657C9A1ED67C0C000B7433 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		DE657C9C1ED67C0C000B7433 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		DE657DC41ED6873D000B7433 /* amrFileCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = amrFileCodec.h; sourceTree = "<group>"; };
-		DE657DC51ED6873D000B7433 /* amrFileCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = amrFileCodec.m; sourceTree = "<group>"; };
+		DE657DC41ED6873D000B7433 /* WQAmrFileCodec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQAmrFileCodec.h; sourceTree = "<group>"; };
+		DE657DC51ED6873D000B7433 /* WQAmrFileCodec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQAmrFileCodec.m; sourceTree = "<group>"; };
 		DE657DDE1ED68902000B7433 /* PrefixHeader.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		DE657DE01ED6967F000B7433 /* WQVoiceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WQVoiceCache.h; sourceTree = "<group>"; };
 		DE657DE11ED6967F000B7433 /* WQVoiceCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WQVoiceCache.m; sourceTree = "<group>"; };
@@ -148,8 +148,8 @@
 				DEFF5BDE1F444D7B00BB20D3 /* interf_enc.h */,
 				DEFF5BDF1F444D7B00BB20D3 /* libopencore-amrnb.a */,
 				DEFF5BE01F444D7B00BB20D3 /* libopencore-amrwb.a */,
-				DE657DC41ED6873D000B7433 /* amrFileCodec.h */,
-				DE657DC51ED6873D000B7433 /* amrFileCodec.m */,
+				DE657DC41ED6873D000B7433 /* WQAmrFileCodec.h */,
+				DE657DC51ED6873D000B7433 /* WQAmrFileCodec.m */,
 			);
 			path = amrwapper;
 			sourceTree = "<group>";
@@ -214,6 +214,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -255,7 +256,7 @@
 				DE657DEE1ED6967F000B7433 /* WQVoiceRecordManager.m in Sources */,
 				DE657C8A1ED67C0C000B7433 /* main.m in Sources */,
 				2DFFF6D61F9DC9EE00804BD4 /* WQVoiceConversionTool.m in Sources */,
-				DE657DD61ED6873D000B7433 /* amrFileCodec.m in Sources */,
+				DE657DD61ED6873D000B7433 /* WQAmrFileCodec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

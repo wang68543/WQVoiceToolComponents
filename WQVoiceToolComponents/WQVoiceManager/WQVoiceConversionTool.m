@@ -7,7 +7,7 @@
 //
 
 #import "WQVoiceConversionTool.h"
-#import "amrFileCodec.h"
+#import "WQAmrFileCodec.h"
 #import "lame.h"
 #import <AVFoundation/AVFoundation.h>
 @interface WQVoiceConversionTool()

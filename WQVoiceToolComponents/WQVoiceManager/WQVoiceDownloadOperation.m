@@ -6,8 +6,7 @@
 //  Copyright © 2017年 WangQiang. All rights reserved.
 //
 
-#import "WQVoiceDownloadOperation.h"
-#import "amrFileCodec.h"
+#import "WQVoiceDownloadOperation.h" 
 @interface WQVoiceDownloadOperation(){
     NSString *_outputPath;
 }
@@ -75,22 +74,13 @@
     }
     return self;
 }
-
-//-(WQVoiceCache *)voiceCache{
-//    if(!_voiceCache){
-//        _voiceCache = [WQVoiceCache sharedCache];
-//    }
-//    return _voiceCache;
-//}
 - (void)done{
     self.finished = YES;
     self.executing = NO;
     [self reset];
 }
 - (void)reset{
-//    [self cleanUpProgressForTask:_dataTask];
     self.cancelBlock = nil;
-//    self.convertVoiceBlock = nil;
     _downloadProgress = nil;
 
     self.voiceData = nil;

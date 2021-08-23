@@ -1,14 +1,61 @@
 //
-//  amrFileCodec.cpp
+//  WQAmrFileCodec.cpp
 //  amrDemoForiOS
 //
 //  Created by Tang Xiaoping on 9/27/11.
 //  Copyright 2011 test. All rights reserved.
 //
 
-#import "amrFileCodec.h"
+#import "WQAmrFileCodec.h"
 #include "interf_dec.h"
 #include "interf_enc.h"
+#define AMR_MAGIC_NUMBER "#!AMR\n"
+
+#define PCM_FRAME_SIZE 160 // 8khz 8000*0.02=160
+#define MAX_AMR_FRAME_SIZE 32
+#define AMR_FRAME_COUNT_PER_SECOND 50
+
+typedef struct
+{
+    char chChunkID[4];
+    int nChunkSize;
+}XCHUNKHEADER;
+
+typedef struct
+{
+    short nFormatTag;
+    short nChannels;
+    int nSamplesPerSec;
+    int nAvgBytesPerSec;
+    short nBlockAlign;
+    short nBitsPerSample;
+}WAVEFORMAT;
+
+typedef struct
+{
+    short nFormatTag;
+    short nChannels;
+    int nSamplesPerSec;
+    int nAvgBytesPerSec;
+    short nBlockAlign;
+    short nBitsPerSample;
+    short nExSize;
+}WAVEFORMATX;
+
+typedef struct
+{
+    char chRiffID[4];
+    int nRiffSize;
+    char chRiffFormat[4];
+}RIFFHEADER;
+
+typedef struct
+{
+    char chFmtID[4];
+    int nFmtSize;
+    WAVEFORMAT wf;
+}FMTBLOCK;
+
 typedef unsigned long long u64;
 typedef long long s64;
 typedef unsigned int u32;
@@ -186,7 +233,7 @@ int caclAMRFrameSize(unsigned char frameHeader)
 #pragma clang diagnostic ignored "-Wsizeof-pointer-memaccess"
 // 读第一个帧 - (参考帧)
 // 返回值: 0-出错; 1-正确
-int ReadAMRFrameFirstData(char* fpamr,int pos,NSInteger maxLen, unsigned char frameBuffer[], int* stdFrameSize, unsigned char* stdFrameHeader)
+int WQ_ReadAMRFrameFirstData(char* fpamr,int pos,NSInteger maxLen, unsigned char frameBuffer[], int* stdFrameSize, unsigned char* stdFrameHeader)
 {
     int nPos = 0;
 	memset(frameBuffer, 0, sizeof(frameBuffer));
@@ -257,7 +304,7 @@ int ReadAMRFrameData(char* fpamr,int pos,int maxLen, unsigned char frameBuffer[]
 	return nPos;
 }
 
-void WriteWAVEHeader(NSMutableData* fpwave, int nFrame)
+void WQ_WriteWAVEHeader(NSMutableData* fpwave, int nFrame)
 {
 	char tag[10] = "";
 	
@@ -349,7 +396,7 @@ NSData* DecodeAMRToWAVE(NSData* data) {
 	memset(pcmFrame, 0, sizeof(pcmFrame));
 	//ReadAMRFrameFirst(fpamr, amrFrame, &stdFrameSize, &stdFrameHeader);
     
-    nTemp = ReadAMRFrameFirstData(rfile,pos,maxLen, amrFrame, &stdFrameSize, &stdFrameHeader);
+    nTemp = WQ_ReadAMRFrameFirstData(rfile,pos,maxLen, amrFrame, &stdFrameSize, &stdFrameHeader);
     if (nTemp==0) {
         Decoder_Interface_exit(destate);
         return data;
@@ -389,7 +436,7 @@ NSData* DecodeAMRToWAVE(NSData* data) {
     //if (!bErr) {
         
     NSMutableData *out = [[[NSMutableData alloc]init] autorelease];
-	WriteWAVEHeader(out, nFrameCount);
+    WQ_WriteWAVEHeader(out, nFrameCount);
     [out appendData:fpwave];
 	//fclose(fpwave);
     [fpwave release];
@@ -404,7 +451,7 @@ NSData* DecodeAMRToWAVE(NSData* data) {
 #pragma mark Encode
 // 从WAVE文件读一个完整的PCM音频帧
 // 返回值: 0-错误 >0: 完整帧大小
-int ReadPCMFrameData(short speech[], char* fpwave, int nChannels, int nBitsPerSample)
+int WQ_ReadPCMFrameData(short speech[], char* fpwave, int nChannels, int nBitsPerSample)
 {
 	int nRead = 0;
 	int x = 0, y=0;
@@ -474,7 +521,7 @@ int ReadPCMFrameData(short speech[], char* fpwave, int nChannels, int nBitsPerSa
 }
 // 从WAVE文件读一个完整的PCM音频帧
 // 返回值: 0-错误 >0: 完整帧大小
-int ReadPCMFrame(short speech[], FILE* fpwave, int nChannels, int nBitsPerSample)
+int WQ_ReadPCMFrame(short speech[], FILE* fpwave, int nChannels, int nBitsPerSample)
 {
     int nRead = 0;
     int x = 0, y=0;
@@ -583,7 +630,7 @@ NSData* EncodePCMToAMR(char* data, int maxLen,int nChannels, int nBitsPerSample)
         if ((data-oldBuf+320)>maxLen) {
             break;
         }
-		int nRead = ReadPCMFrameData(speech, data, nChannels, nBitsPerSample);
+		int nRead = WQ_ReadPCMFrameData(speech, data, nChannels, nBitsPerSample);
         data += nRead;
         
 		
@@ -622,7 +669,7 @@ NSData* EncodePCMToAMR(char* data, int maxLen,int nChannels, int nBitsPerSample)
 //    SInt64  mChunkSize;
 //};
 
-int SkipCaffHead(char* buf){
+int WQ_SkipCaffHead(char* buf){
     
     if (!buf) {
         return 0;
@@ -678,73 +725,73 @@ int SkipCaffHead(char* buf){
 // bps决定样本(sample)大小
 // bps = 8 --> 8位 unsigned char
 //       16 --> 16位 unsigned short
-int EncodeWAVEFileToAMRFile(const char* pchWAVEFilename, const char* pchAMRFileName, int nChannels, int nBitsPerSample)
-{
-    FILE* fpwave;
-    FILE* fpamr;
-    
-    /* input speech vector */
-    short speech[160];
-    
-    /* counters */
-    int byte_counter, frames = 0, bytes = 0;
-    
-    /* pointer to encoder state structure */
-    void *enstate;
-    
-    /* requested mode */
-    enum Mode req_mode = MR122;
-    int dtx = 0;
-    
-    /* bitstream filetype */
-    unsigned char amrFrame[MAX_AMR_FRAME_SIZE];
-    
-    fpwave = fopen(pchWAVEFilename, "rb");
-    if (fpwave == NULL)
-    {
-        return 0;
-    }
-    
-    // 创建并初始化amr文件
-    fpamr = fopen(pchAMRFileName, "wb");
-    if (fpamr == NULL)
-    {
-        fclose(fpwave);
-        return 0;
-    }
-    /* write magic number to indicate single channel AMR file storage format */
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-    bytes = fwrite(AMR_MAGIC_NUMBER,sizeof(char), strlen(AMR_MAGIC_NUMBER), fpamr);
-#pragma clang diagnostic pop
-    
-    
-    /* skip to pcm audio data*/
-    SkipToPCMAudioData(fpwave);
-    
-    enstate = Encoder_Interface_init(dtx);
-    
-    while(1)
-    {
-        // read one pcm frame
-        if (!ReadPCMFrame(speech, fpwave, nChannels, nBitsPerSample)) break;
-        
-        frames++;
-        
-        /* call encoder */
-        byte_counter = Encoder_Interface_Encode(enstate, req_mode, speech, amrFrame, 0);
-        
-        bytes += byte_counter;
-        fwrite(amrFrame, sizeof (unsigned char), byte_counter, fpamr );
-    }
-    
-    Encoder_Interface_exit(enstate);
-    
-    fclose(fpamr);
-    fclose(fpwave);
-    
-    return frames;
-}
+//int WQ_EncodeWAVEFileToAMRFile(const char* pchWAVEFilename, const char* pchAMRFileName, int nChannels, int nBitsPerSample)
+//{
+//    FILE* fpwave;
+//    FILE* fpamr;
+//
+//    /* input speech vector */
+//    short speech[160];
+//
+//    /* counters */
+//    int byte_counter, frames = 0, bytes = 0;
+//
+//    /* pointer to encoder state structure */
+//    void *enstate;
+//
+//    /* requested mode */
+//    enum Mode req_mode = MR122;
+//    int dtx = 0;
+//
+//    /* bitstream filetype */
+//    unsigned char amrFrame[MAX_AMR_FRAME_SIZE];
+//
+//    fpwave = fopen(pchWAVEFilename, "rb");
+//    if (fpwave == NULL)
+//    {
+//        return 0;
+//    }
+//
+//    // 创建并初始化amr文件
+//    fpamr = fopen(pchAMRFileName, "wb");
+//    if (fpamr == NULL)
+//    {
+//        fclose(fpwave);
+//        return 0;
+//    }
+//    /* write magic number to indicate single channel AMR file storage format */
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+//    bytes = fwrite(AMR_MAGIC_NUMBER,sizeof(char), strlen(AMR_MAGIC_NUMBER), fpamr);
+//#pragma clang diagnostic pop
+//
+//
+//    /* skip to pcm audio data*/
+//    SkipToPCMAudioData(fpwave);
+//
+//    enstate = Encoder_Interface_init(dtx);
+//
+//    while(1)
+//    {
+//        // read one pcm frame
+//        if (!ReadPCMFrame(speech, fpwave, nChannels, nBitsPerSample)) break;
+//
+//        frames++;
+//
+//        /* call encoder */
+//        byte_counter = Encoder_Interface_Encode(enstate, req_mode, speech, amrFrame, 0);
+//
+//        bytes += byte_counter;
+//        fwrite(amrFrame, sizeof (unsigned char), byte_counter, fpamr );
+//    }
+//
+//    Encoder_Interface_exit(enstate);
+//
+//    fclose(fpamr);
+//    fclose(fpwave);
+//
+//    return frames;
+//}
 //此处将一个录制的pcm直接转换为amr格式
 //调用方式为 EncodeWAVEToAMR(pcmData,1,16);
 NSData* EncodeWAVEToAMR(NSData* data, int nChannels, int nBitsPerSample)
@@ -767,7 +814,7 @@ NSData* EncodeWAVEToAMR(NSData* data, int nChannels, int nBitsPerSample)
     NSInteger maxLen = [data length];
     
 
-    nPos += SkipCaffHead(buf);
+    nPos += WQ_SkipCaffHead(buf);
     if (nPos>=maxLen) {
         return nil;
     }
