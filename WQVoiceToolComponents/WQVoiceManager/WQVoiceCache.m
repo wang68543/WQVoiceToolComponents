@@ -80,8 +80,9 @@ static WQVoiceCache *_instance;
 //TODO: 保存文件
 -(void)storeVoice:(NSData *)voiceData forKey:(NSString *)key{
     if(voiceData){
+        __weak typeof(self) weakSelf = self;
         dispatch_async(_ioQueue, ^{
-            [voiceData writeToFile:[_diskCacheDirectory stringByAppendingPathComponent:key] atomically:YES];
+            [voiceData writeToFile:[weakSelf.diskCacheDirectory stringByAppendingPathComponent:key] atomically:YES];
         });
        
     }

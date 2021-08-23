@@ -36,7 +36,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/wang68543/WQVoiceToolComponents.git", :tag => "#{s.version}" }
 
 
-  s.platform     = :ios, "8.0"
+  s.platform     = :ios, "9.0"
 
   s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
   
